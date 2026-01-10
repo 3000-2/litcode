@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
 import { StatusBar } from './StatusBar';
+import { Editor } from '../plugins/editor/components/Editor';
 import { pluginRegistry, type SidebarConfig } from '../core';
 import { eventBus } from '../core/event-bus';
 
@@ -55,6 +56,7 @@ export function Layout() {
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <TabBar />
           <div className="flex-1 overflow-hidden relative" id="editor-container">
+            <Editor />
           </div>
         </div>
       </div>

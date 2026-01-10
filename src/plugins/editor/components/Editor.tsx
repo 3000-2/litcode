@@ -161,14 +161,39 @@ export function Editor() {
       }
     };
 
+    const handleTabClose = (data: unknown) => {
+      const { id } = data as { id: string };
+      if (currentTabIdRef.current === id) {
+        setCurrentPath(null);
+        originalContentRef.current = '';
+        currentTabIdRef.current = null;
+        if (viewRef.current) {
+          viewRef.current.setState(EditorState.create({
+            doc: '',
+            extensions: [
+              lineNumbers(),
+              highlightActiveLineGutter(),
+              highlightActiveLine(),
+              history(),
+              keymap.of([...defaultKeymap, ...historyKeymap]),
+              oneDark,
+            ],
+          }));
+        }
+        pluginRegistry.setCurrentFile(null);
+      }
+    };
+
     const unsubOpen = eventBus.on(Events.FILE_OPEN, handleFileOpen);
     const unsubChange = eventBus.on(Events.TAB_CHANGE, handleTabChange);
+    const unsubClose = eventBus.on(Events.TAB_CLOSE, handleTabClose);
     const unsubSave = eventBus.on('editor:save', handleSave);
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       unsubOpen();
       unsubChange();
+      unsubClose();
       unsubSave();
       window.removeEventListener('keydown', handleKeyDown);
     };

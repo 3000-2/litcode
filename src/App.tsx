@@ -6,7 +6,7 @@ import { editorPlugin } from './plugins/editor';
 import { gitDiffPlugin } from './plugins/git-diff';
 import { settingsPlugin } from './plugins/settings';
 import { debuggerPlugin } from './plugins/debugger';
-import { Editor } from './plugins/editor/components/Editor';
+
 import './styles/global.css';
 
 function App() {
@@ -46,14 +46,7 @@ function App() {
     );
   }
 
-  return (
-    <>
-      <Layout />
-      <div style={{ position: 'absolute', top: 36, left: 298, right: 0, bottom: 24 }}>
-        <Editor />
-      </div>
-    </>
-  );
+  return <Layout />;
 }
 
 export default App;
