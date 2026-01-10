@@ -10,7 +10,6 @@ import {
   Braces,
 } from 'lucide-react';
 import type { DirEntry } from '../../../core';
-import './FileTree.css';
 
 interface FileTreeProps {
   entries: DirEntry[];
@@ -21,7 +20,7 @@ interface FileTreeProps {
 
 export function FileTree({ entries, onFileClick, onFolderOpen, level = 0 }: FileTreeProps) {
   return (
-    <div className="file-tree">
+    <div className="select-none">
       {entries.map((entry) => (
         <FileTreeItem
           key={entry.path}
@@ -78,9 +77,9 @@ function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemP
   const getFileIcon = (name: string, isDir: boolean) => {
     if (isDir) {
       return expanded ? (
-        <FolderOpen size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-folder" />
+        <FolderOpen size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#dcb67a]" />
       ) : (
-        <Folder size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-folder" />
+        <Folder size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#dcb67a]" />
       );
     }
 
@@ -88,45 +87,45 @@ function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemP
     switch (ext) {
       case 'ts':
       case 'tsx':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-ts" />;
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#3178c6]" />;
       case 'js':
       case 'jsx':
       case 'mjs':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-js" />;
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#f7df1e]" />;
       case 'py':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-py" />;
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#3776ab]" />;
       case 'go':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-go" />;
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#00add8]" />;
       case 'rs':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-rs" />;
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#dea584]" />;
       case 'json':
-        return <Braces size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-json" />;
+        return <Braces size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#cbcb41]" />;
       case 'md':
-        return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-md" />;
+        return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#519aba]" />;
       case 'css':
       case 'scss':
       case 'less':
-        return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-css" />;
+        return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#563d7c]" />;
       case 'html':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-html" />;
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#e34c26]" />;
       default:
-        return <File size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-file" />;
+        return <File size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-fg-secondary" />;
     }
   };
 
   return (
-    <div className="file-tree-item">
+    <div>
       <div
-        className="file-tree-row"
+        className="flex items-center gap-1.5 py-1 px-2 cursor-pointer transition-colors duration-100 hover:bg-hover"
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={handleClick}
         onDoubleClick={handleDoubleClick}
       >
-        <span className="file-tree-icon">
+        <span className="flex items-center justify-center shrink-0 w-4 h-4">
           {getFileIcon(entry.name, entry.isDirectory)}
         </span>
-        <span className="file-tree-name truncate">{entry.name}</span>
-        {loading && <span className="file-tree-loading">...</span>}
+        <span className="text-base flex-1 min-w-0 truncate">{entry.name}</span>
+        {loading && <span className="text-2xs text-fg-secondary">...</span>}
       </div>
 
       {expanded && children.length > 0 && (

@@ -7,7 +7,6 @@ import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { invoke } from '@tauri-apps/api/core';
 import { eventBus, Events, pluginRegistry } from '../../../core';
-import './Editor.css';
 
 const getLanguageExtension = (filename: string): Extension => {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -47,7 +46,7 @@ export function Editor() {
         const col = pos - line.from + 1;
         pluginRegistry.registerStatusBar({
           id: 'editor-position',
-          content: `Ln ${line.number}, Col ${col}`,
+          content: `Line ${line.number}, Col ${col}`,
           position: 'right',
           order: 100,
         });
@@ -176,10 +175,10 @@ export function Editor() {
   }, [currentPath, createEditorState]);
 
   return (
-    <div className="editor-wrapper">
-      <div ref={containerRef} className="editor-container" />
+    <div className="h-full w-full relative">
+      <div ref={containerRef} className="h-full w-full [&_.cm-editor]:h-full [&_.cm-scroller]:font-mono-editor [&_.cm-scroller]:text-[length:var(--font-size)] [&_.cm-scroller]:leading-[var(--line-height)]" />
       {!currentPath && (
-        <div className="editor-placeholder">
+        <div className="absolute inset-0 flex items-center justify-center bg-primary text-fg-muted text-sm">
           <p>Open a file to start editing</p>
         </div>
       )}

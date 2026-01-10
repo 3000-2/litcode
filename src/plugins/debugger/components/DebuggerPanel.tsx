@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Circle } from 'lucide-react';
 import { IconButton, Button, Select, EmptyState } from '../../../components';
+import { cn } from '../../../lib/utils';
 import { eventBus, Events } from '../../../core';
-import './DebuggerPanel.css';
 
 type DebugState = 'idle' | 'running' | 'paused';
 
@@ -128,12 +128,12 @@ export function DebuggerPanel() {
   };
 
   return (
-    <div className="debugger-panel">
-      <div className="debugger-header">
-        <span className="debugger-title">DEBUG</span>
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center px-3 py-2 min-h-header border-b border-default">
+        <span className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">DEBUG</span>
       </div>
 
-      <div className="debugger-config">
+      <div className="px-3 py-2 border-b border-default">
         <Select
           value={selectedConfig}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedConfig(e.target.value)}
@@ -145,20 +145,20 @@ export function DebuggerPanel() {
         </Select>
       </div>
 
-      <div className="debugger-controls">
+      <div className="flex gap-1 px-3 py-2 border-b border-default">
         {debugState === 'idle' ? (
-          <Button icon="play" onClick={handleStart} title="Start (F5)" className="control-btn start">
+          <Button icon="play" onClick={handleStart} title="Start (F5)" className="flex-1 bg-diff-added text-diff-added hover:bg-diff-added hover:text-white">
             Start
           </Button>
         ) : (
           <>
-            <IconButton icon="square" onClick={handleStop} title="Stop (Shift+F5)" className="control-btn stop" />
+            <IconButton icon="square" onClick={handleStop} title="Stop (Shift+F5)" className="flex-1 bg-diff-removed text-diff-removed hover:bg-diff-removed hover:text-white" />
             {debugState === 'paused' && (
               <>
-                <IconButton icon="play" onClick={handleContinue} title="Continue (F8)" className="control-btn" />
-                <IconButton icon="step-forward" onClick={handleStepOver} title="Step Over (F10)" className="control-btn" />
-                <IconButton icon="arrow-down" onClick={handleStepInto} title="Step Into (F11)" className="control-btn" />
-                <IconButton icon="arrow-up" onClick={handleStepOut} title="Step Out (Shift+F11)" className="control-btn" />
+                <IconButton icon="play" onClick={handleContinue} title="Continue (F8)" className="flex-1 bg-tertiary hover:bg-hover" />
+                <IconButton icon="step-forward" onClick={handleStepOver} title="Step Over (F10)" className="flex-1 bg-tertiary hover:bg-hover" />
+                <IconButton icon="arrow-down" onClick={handleStepInto} title="Step Into (F11)" className="flex-1 bg-tertiary hover:bg-hover" />
+                <IconButton icon="arrow-up" onClick={handleStepOut} title="Step Out (Shift+F11)" className="flex-1 bg-tertiary hover:bg-hover" />
               </>
             )}
           </>
@@ -166,44 +166,49 @@ export function DebuggerPanel() {
       </div>
 
       {debugState !== 'idle' && (
-        <div className="debugger-status">
-          <span className={`status-indicator ${debugState}`} />
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-default text-sm">
+          <span
+            className={cn(
+              'w-2 h-2 rounded-full',
+              debugState === 'running' ? 'bg-diff-added animate-pulse' : 'bg-diff-modified'
+            )}
+          />
           <span>{debugState === 'running' ? 'Running...' : 'Paused'}</span>
         </div>
       )}
 
-      <div className="debugger-content">
-        <div className="debugger-section">
-          <div className="section-header">
+      <div className="flex-1 overflow-auto">
+        <div className="border-b border-default">
+          <div className="flex justify-between items-center px-3 py-2 text-xs font-semibold text-fg-secondary bg-tertiary cursor-pointer hover:bg-hover">
             <span>VARIABLES</span>
           </div>
-          <div className="section-content">
+          <div className="py-1">
             {variables.length === 0 ? (
               <EmptyState message="No variables" />
             ) : (
               variables.map((v, i) => (
-                <div key={i} className="variable-item">
-                  <span className="var-name">{v.name}</span>
-                  <span className="var-value">{v.value}</span>
-                  <span className="var-type">{v.type}</span>
+                <div key={i} className="flex items-center gap-2 py-1.5 px-3 text-sm">
+                  <span className="text-fg-primary font-medium">{v.name}</span>
+                  <span className="flex-1 text-diff-added font-mono-editor">{v.value}</span>
+                  <span className="text-fg-muted text-2xs">{v.type}</span>
                 </div>
               ))
             )}
           </div>
         </div>
 
-        <div className="debugger-section">
-          <div className="section-header">
+        <div className="border-b border-default">
+          <div className="flex justify-between items-center px-3 py-2 text-xs font-semibold text-fg-secondary bg-tertiary cursor-pointer hover:bg-hover">
             <span>CALL STACK</span>
           </div>
-          <div className="section-content">
+          <div className="py-1">
             {stackFrames.length === 0 ? (
               <EmptyState message="No call stack" />
             ) : (
               stackFrames.map((frame) => (
-                <div key={frame.id} className="stack-frame">
-                  <span className="frame-name">{frame.name}</span>
-                  <span className="frame-location">
+                <div key={frame.id} className="flex flex-col py-1.5 px-3 cursor-pointer hover:bg-hover">
+                  <span className="text-sm font-medium">{frame.name}</span>
+                  <span className="text-xs text-fg-secondary">
                     {frame.path.split('/').pop()}:{frame.line}
                   </span>
                 </div>
@@ -212,31 +217,31 @@ export function DebuggerPanel() {
           </div>
         </div>
 
-        <div className="debugger-section">
-          <div className="section-header">
+        <div className="border-b border-default">
+          <div className="flex justify-between items-center px-3 py-2 text-xs font-semibold text-fg-secondary bg-tertiary cursor-pointer hover:bg-hover">
             <span>BREAKPOINTS</span>
-            <span className="bp-count">{breakpoints.length}</span>
+            <span className="bg-accent text-white px-1.5 py-0.5 rounded-full text-2xs">{breakpoints.length}</span>
           </div>
-          <div className="section-content">
+          <div className="py-1">
             {breakpoints.length === 0 ? (
               <EmptyState message="No breakpoints" />
             ) : (
               breakpoints.map((bp) => (
-                <div key={bp.id} className="breakpoint-item">
+                <div key={bp.id} className="group flex items-center gap-2 py-1.5 px-3 text-sm">
                   <button
-                    className={`bp-toggle ${bp.enabled ? 'enabled' : ''}`}
+                    className={cn('w-4 h-4 flex items-center justify-center', bp.enabled ? 'text-diff-removed' : 'text-fg-muted')}
                     onClick={() => handleToggleBreakpoint(bp.id)}
                   >
                     <Circle size={10} strokeWidth={2} fill={bp.enabled ? 'currentColor' : 'none'} />
                   </button>
-                  <span className="bp-location truncate">
+                  <span className="flex-1 font-mono-editor truncate">
                     {bp.path.split('/').pop()}:{bp.line}
                   </span>
                   <IconButton
                     icon="x"
                     size="sm"
                     variant="ghost"
-                    className="bp-remove"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-100"
                     onClick={() => handleRemoveBreakpoint(bp.id)}
                   />
                 </div>

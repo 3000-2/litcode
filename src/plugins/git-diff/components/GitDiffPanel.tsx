@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { GitBranch } from 'lucide-react';
 import { IconButton, Input } from '../../../components';
+import { cn } from '../../../lib/utils';
 import { eventBus } from '../../../core';
 import { DiffViewer } from './DiffViewer';
-import './GitDiffPanel.css';
 
 interface GitFileStatus {
   path: string;
@@ -76,29 +76,29 @@ export function GitDiffPanel() {
     }
   };
 
-  const getStatusColor = (status: string): string => {
+  const getStatusColorClass = (status: string): string => {
     switch (status) {
       case 'added':
-        return 'var(--diff-added-fg)';
+        return 'text-diff-added';
       case 'deleted':
-        return 'var(--diff-removed-fg)';
+        return 'text-diff-removed';
       case 'modified':
-        return 'var(--diff-modified-fg)';
+        return 'text-diff-modified';
       default:
-        return 'var(--fg-secondary)';
+        return 'text-fg-secondary';
     }
   };
 
   return (
-    <div className="git-diff-panel">
-      <div className="git-diff-header">
-        <span className="git-diff-title">SOURCE CONTROL</span>
-        <div className="git-diff-actions">
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center px-3 py-2 min-h-header border-b border-default">
+        <span className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">SOURCE CONTROL</span>
+        <div className="flex gap-1">
           <IconButton icon="refresh" size="sm" onClick={loadStatus} title="Refresh" />
         </div>
       </div>
 
-      <div className="git-diff-path">
+      <div className="px-3 py-2 border-b border-default">
         <Input
           value={repoPath}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRepoPath(e.target.value)}
@@ -110,45 +110,45 @@ export function GitDiffPanel() {
       </div>
 
       {status && (
-        <div className="git-diff-branch">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-default text-sm">
           <GitBranch size={14} strokeWidth={1.5} />
-          <span className="branch-name">{status.branch}</span>
+          <span className="font-medium">{status.branch}</span>
           {status.files.length > 0 && (
-            <span className="changes-count">{status.files.length}</span>
+            <span className="bg-accent text-white px-1.5 py-0.5 rounded-full text-2xs font-semibold">{status.files.length}</span>
           )}
         </div>
       )}
 
-      <div className="git-diff-content">
-        {loading && <div className="git-diff-loading">Loading...</div>}
-        {error && <div className="git-diff-error">{error}</div>}
+      <div className="flex-1 overflow-auto">
+        {loading && <div className="py-6 px-3 text-center text-sm text-fg-secondary">Loading...</div>}
+        {error && <div className="py-6 px-3 text-center text-sm text-diff-removed">{error}</div>}
         
         {!loading && !error && status && (
           <>
             {status.files.length === 0 ? (
-              <div className="git-diff-empty">No changes</div>
+              <div className="py-6 px-3 text-center text-sm text-fg-muted">No changes</div>
             ) : (
-              <div className="git-diff-files">
+              <div className="py-1">
                 {status.files.map((file) => (
                   <div
                     key={file.path}
-                    className={`git-diff-file ${selectedFile === file.path ? 'selected' : ''}`}
+                    className={cn(
+                      'group flex items-center gap-2 py-1.5 px-3 cursor-pointer transition-colors duration-100 hover:bg-hover',
+                      selectedFile === file.path && 'bg-active'
+                    )}
                     onClick={() => setSelectedFile(file.path)}
                   >
-                    <span
-                      className="file-status"
-                      style={{ color: getStatusColor(file.status) }}
-                    >
+                    <span className={cn('font-mono-editor text-sm font-semibold w-4 text-center', getStatusColorClass(file.status))}>
                       {getStatusIcon(file.status)}
                     </span>
-                    <span className="file-name truncate">
+                    <span className="flex-1 text-base truncate">
                       {file.path.split('/').pop()}
                     </span>
                     <IconButton
                       icon="undo"
                       size="sm"
                       variant="ghost"
-                      className="file-revert"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-100"
                       onClick={(e: React.MouseEvent) => {
                         e.stopPropagation();
                         handleRevertFile(file.path);

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { pluginRegistry, type StatusBarItem } from '../core';
 import { eventBus } from '../core/event-bus';
-import './StatusBar.css';
 
 export function StatusBar() {
   const [items, setItems] = useState<StatusBarItem[]>([]);
@@ -21,26 +20,26 @@ export function StatusBar() {
   const rightItems = items.filter((i) => i.position === 'right');
 
   return (
-    <div className="statusbar">
-      <div className="statusbar-left">
+    <div className="h-statusbar min-h-statusbar bg-tertiary flex items-center justify-between px-2 text-sm text-fg-secondary">
+      <div className="flex items-center gap-3">
         {leftItems.map((item) => (
-          <div key={item.id} className="statusbar-item">
+          <div key={item.id} className="flex items-center gap-1 cursor-default">
             {item.content}
           </div>
         ))}
       </div>
 
-      <div className="statusbar-center">
+      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
         {centerItems.map((item) => (
-          <div key={item.id} className="statusbar-item">
+          <div key={item.id} className="flex items-center gap-1 cursor-default">
             {item.content}
           </div>
         ))}
       </div>
 
-      <div className="statusbar-right">
+      <div className="flex items-center gap-3">
         {rightItems.map((item) => (
-          <div key={item.id} className="statusbar-item">
+          <div key={item.id} className="flex items-center gap-1 cursor-default [&_button]:px-1.5 [&_button]:py-0.5 [&_button]:rounded-sm [&_button]:text-fg-secondary [&_button:hover]:bg-hover">
             {item.content}
           </div>
         ))}

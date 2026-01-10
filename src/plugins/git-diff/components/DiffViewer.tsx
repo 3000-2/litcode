@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { IconButton, Button } from '../../../components';
-import './DiffViewer.css';
+import { cn } from '../../../lib/utils';
 
 interface GitDiffLine {
   type: string;
@@ -88,14 +88,14 @@ export function DiffViewer({ repoPath, filePath, onClose, onRevert }: DiffViewer
   const fileName = filePath.split('/').pop() || filePath;
 
   return (
-    <div className="diff-viewer-overlay">
-      <div className="diff-viewer">
-        <div className="diff-viewer-header">
-          <div className="diff-viewer-title">
-            <span className="diff-file-name">{fileName}</span>
-            <span className="diff-file-path">{filePath}</span>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+      <div className="w-[90%] max-w-[1200px] h-[80%] bg-primary rounded-lg border border-default flex flex-col overflow-hidden">
+        <div className="flex justify-between items-center px-4 py-3 border-b border-default bg-secondary">
+          <div className="flex flex-col gap-0.5">
+            <span className="font-semibold text-sm">{fileName}</span>
+            <span className="text-xs text-fg-secondary">{filePath}</span>
           </div>
-          <div className="diff-viewer-actions">
+          <div className="flex gap-2 items-center">
             <Button
               variant={viewMode === 'inline' ? 'primary' : 'ghost'}
               size="sm"
@@ -123,9 +123,9 @@ export function DiffViewer({ repoPath, filePath, onClose, onRevert }: DiffViewer
           </div>
         </div>
 
-        <div className="diff-viewer-content">
-          {loading && <div className="diff-loading">Loading diff...</div>}
-          {error && <div className="diff-error">{error}</div>}
+        <div className="flex-1 overflow-auto p-4">
+          {loading && <div className="text-center py-8 text-fg-secondary">Loading diff...</div>}
+          {error && <div className="text-center py-8 text-diff-removed">{error}</div>}
 
           {!loading && !error && diff && (
             viewMode === 'inline' ? (
@@ -156,11 +156,11 @@ interface DiffProps {
 
 function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
   return (
-    <div className="inline-diff">
+    <div>
       {diff.hunks.map((hunk, hunkIndex) => (
-        <div key={hunkIndex} className="diff-hunk">
-          <div className="hunk-header">
-            <span className="hunk-info">
+        <div key={hunkIndex} className="mb-6 border border-default rounded overflow-hidden">
+          <div className="flex justify-between items-center px-3 py-2 bg-tertiary border-b border-default">
+            <span className="font-mono-editor text-sm text-fg-secondary">
               @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
             </span>
             <Button
@@ -169,35 +169,45 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
               icon="undo"
               onClick={() => onRevertHunk(hunkIndex)}
               title="Revert this block"
-              className="hunk-revert"
+              className="hover:bg-diff-removed hover:text-diff-removed"
             >
               Revert Block
             </Button>
           </div>
-          <div className="hunk-lines">
+          <div className="font-mono-editor text-base leading-relaxed">
             {hunk.lines.map((line, lineIndex) => {
               const lineNum = line.newLineNumber || line.oldLineNumber;
               return (
                 <div
                   key={lineIndex}
-                  className={`diff-line ${line.type}`}
+                  className={cn(
+                    'group flex items-stretch min-h-[22px]',
+                    line.type === 'add' && 'bg-diff-added',
+                    line.type === 'delete' && 'bg-diff-removed'
+                  )}
                 >
-                  <span className="line-number old">
+                  <span className="w-[50px] min-w-[50px] px-2 text-right text-fg-muted bg-secondary select-none">
                     {line.oldLineNumber || ''}
                   </span>
-                  <span className="line-number new">
+                  <span className="w-[50px] min-w-[50px] px-2 text-right text-fg-muted bg-secondary border-r border-default select-none">
                     {line.newLineNumber || ''}
                   </span>
-                  <span className="line-type">
+                  <span
+                    className={cn(
+                      'w-5 min-w-5 text-center text-fg-muted select-none',
+                      line.type === 'add' && 'text-diff-added',
+                      line.type === 'delete' && 'text-diff-removed'
+                    )}
+                  >
                     {line.type === 'add' ? '+' : line.type === 'delete' ? '-' : ' '}
                   </span>
-                  <span className="line-content">{line.content}</span>
+                  <span className="flex-1 px-2 whitespace-pre-wrap break-all">{line.content}</span>
                   {(line.type === 'add' || line.type === 'delete') && lineNum && (
                     <IconButton
                       icon="undo"
                       size="sm"
                       variant="ghost"
-                      className="line-revert"
+                      className="opacity-0 group-hover:opacity-100 w-7 min-w-7 flex items-center justify-center text-fg-secondary bg-tertiary transition-opacity duration-100 hover:bg-diff-removed hover:text-diff-removed"
                       onClick={() => onRevertLine(lineNum)}
                       title="Revert this line"
                     />
@@ -214,16 +224,16 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
 
 function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
   return (
-    <div className="side-by-side-diff">
+    <div>
       {diff.hunks.map((hunk, hunkIndex) => {
         const oldLines = hunk.lines.filter(l => l.type !== 'add');
         const newLines = hunk.lines.filter(l => l.type !== 'delete');
         const maxLines = Math.max(oldLines.length, newLines.length);
 
         return (
-          <div key={hunkIndex} className="diff-hunk">
-            <div className="hunk-header">
-              <span className="hunk-info">
+          <div key={hunkIndex} className="mb-6 border border-default rounded overflow-hidden">
+            <div className="flex justify-between items-center px-3 py-2 bg-tertiary border-b border-default">
+              <span className="font-mono-editor text-sm text-fg-secondary">
                 @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
               </span>
               <Button
@@ -232,43 +242,43 @@ function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
                 icon="undo"
                 onClick={() => onRevertHunk(hunkIndex)}
                 title="Revert this block"
-                className="hunk-revert"
+                className="hover:bg-diff-removed hover:text-diff-removed"
               >
                 Revert Block
               </Button>
             </div>
-            <div className="hunk-columns">
-              <div className="hunk-column old">
+            <div className="flex">
+              <div className="flex-1 min-w-0 border-r border-default">
                 {Array.from({ length: maxLines }).map((_, i) => {
                   const line = oldLines[i];
                   if (!line) {
-                    return <div key={i} className="diff-line empty" />;
+                    return <div key={i} className="min-h-[22px] bg-tertiary" />;
                   }
                   return (
-                    <div key={i} className={`diff-line ${line.type}`}>
-                      <span className="line-number">{line.oldLineNumber || ''}</span>
-                      <span className="line-content">{line.content}</span>
+                    <div key={i} className={cn('flex pr-1', line.type === 'delete' && 'bg-diff-removed')}>
+                      <span className="w-10 min-w-10 px-2 text-right text-fg-muted select-none">{line.oldLineNumber || ''}</span>
+                      <span className="flex-1 px-2 whitespace-pre-wrap break-all font-mono-editor text-base">{line.content}</span>
                     </div>
                   );
                 })}
               </div>
-              <div className="hunk-column new">
+              <div className="flex-1 min-w-0">
                 {Array.from({ length: maxLines }).map((_, i) => {
                   const line = newLines[i];
                   if (!line) {
-                    return <div key={i} className="diff-line empty" />;
+                    return <div key={i} className="min-h-[22px] bg-tertiary" />;
                   }
                   const lineNum = line.newLineNumber;
                   return (
-                    <div key={i} className={`diff-line ${line.type}`}>
-                      <span className="line-number">{line.newLineNumber || ''}</span>
-                      <span className="line-content">{line.content}</span>
+                    <div key={i} className={cn('group flex pr-1', line.type === 'add' && 'bg-diff-added')}>
+                      <span className="w-10 min-w-10 px-2 text-right text-fg-muted select-none">{line.newLineNumber || ''}</span>
+                      <span className="flex-1 px-2 whitespace-pre-wrap break-all font-mono-editor text-base">{line.content}</span>
                       {line.type === 'add' && lineNum && (
                         <IconButton
                           icon="undo"
                           size="sm"
                           variant="ghost"
-                          className="line-revert"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-100"
                           onClick={() => onRevertLine(lineNum)}
                           title="Revert"
                         />

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Button, Select, SelectOption, Toggle, Slider, Section } from '../../../components';
 import { eventBus, Events, type Settings, type ThemeConfig } from '../../../core';
-import './SettingsPanel.css';
 
 import darkTheme from '../../../styles/themes/dark.json';
 import lightTheme from '../../../styles/themes/light.json';
@@ -140,12 +139,12 @@ export function SettingsPanel() {
   };
 
   return (
-    <div className="settings-panel">
-      <div className="settings-header">
-        <span className="settings-title">SETTINGS</span>
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center px-3 py-2 min-h-header border-b border-default">
+        <span className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">SETTINGS</span>
       </div>
 
-      <div className="settings-content">
+      <div className="flex-1 overflow-auto p-3">
         <Section title="Theme">
           <Select
             value={settings.theme}
@@ -205,10 +204,10 @@ export function SettingsPanel() {
           title="Shell Command"
           hint={<>Usage: <code>litcode .</code> or <code>litcode /path/to/folder</code></>}
         >
-          <p className="settings-hint">
+          <p className="text-xs text-fg-secondary leading-relaxed mb-2">
             Install the 'litcode' command in PATH to open folders from terminal.
           </p>
-          <div className="cli-actions">
+          <div className="my-2">
             {cliInstalled ? (
               <Button
                 variant="danger"
@@ -228,7 +227,7 @@ export function SettingsPanel() {
             )}
           </div>
           {cliMessage && (
-            <pre className="cli-message">{cliMessage}</pre>
+            <pre className="my-2 px-3 py-2 bg-tertiary rounded text-xs text-fg-secondary whitespace-pre-wrap break-all">{cliMessage}</pre>
           )}
         </Section>
 

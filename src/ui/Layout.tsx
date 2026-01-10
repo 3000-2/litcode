@@ -4,7 +4,6 @@ import { TabBar } from './TabBar';
 import { StatusBar } from './StatusBar';
 import { pluginRegistry, type SidebarConfig } from '../core';
 import { eventBus } from '../core/event-bus';
-import './Layout.css';
 
 export function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -33,8 +32,12 @@ export function Layout() {
   const ActivePanel = sidebars.find((s) => s.id === activeSidebar)?.component;
 
   return (
-    <div className="layout">
-      <div className="layout-main">
+    <div className="flex flex-col h-full w-full">
+      <div className="h-7 bg-primary titlebar-drag-region flex items-center justify-center">
+        <span className="text-xs text-fg-secondary select-none">Litcode</span>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar
           items={sidebars}
           activeId={activeSidebar}
@@ -44,14 +47,14 @@ export function Layout() {
         />
 
         {!sidebarCollapsed && ActivePanel && (
-          <div className="sidebar-panel">
+          <div className="w-sidebar-expanded min-w-sidebar-expanded bg-secondary border-r border-default overflow-hidden flex flex-col">
             <ActivePanel />
           </div>
         )}
 
-        <div className="editor-area">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <TabBar />
-          <div className="editor-content" id="editor-container">
+          <div className="flex-1 overflow-hidden relative" id="editor-container">
           </div>
         </div>
       </div>

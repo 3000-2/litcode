@@ -3,7 +3,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { IconButton, Input } from '../../../components';
 import { eventBus, Events, type DirEntry } from '../../../core';
 import { FileTree } from './FileTree';
-import './FileExplorerPanel.css';
 
 export function FileExplorerPanel() {
   const [rootPath, setRootPath] = useState<string>('/Users');
@@ -68,10 +67,10 @@ export function FileExplorerPanel() {
   };
 
   return (
-    <div className="file-explorer">
-      <div className="file-explorer-header">
-        <span className="file-explorer-title">EXPLORER</span>
-        <div className="file-explorer-actions">
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center px-3 py-2 min-h-header border-b border-default">
+        <span className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">EXPLORER</span>
+        <div className="flex gap-1">
           <IconButton
             icon="plus"
             size="sm"
@@ -87,7 +86,7 @@ export function FileExplorerPanel() {
         </div>
       </div>
 
-      <div className="file-explorer-path">
+      <div className="px-3 py-2 border-b border-default">
         <Input
           value={rootPath}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRootPath(e.target.value)}
@@ -99,9 +98,9 @@ export function FileExplorerPanel() {
         />
       </div>
 
-      <div className="file-explorer-content">
-        {loading && <div className="file-explorer-loading">Loading...</div>}
-        {error && <div className="file-explorer-error">{error}</div>}
+      <div className="flex-1 overflow-auto py-1">
+        {loading && <div className="py-6 px-3 text-center text-sm text-fg-secondary">Loading...</div>}
+        {error && <div className="py-6 px-3 text-center text-sm text-diff-removed">{error}</div>}
         {!loading && !error && (
           <FileTree
             entries={entries}

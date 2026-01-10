@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { IconButton } from '../components';
+import { cn } from '../lib/utils';
 import { eventBus, Events, type TabInfo } from '../core';
-import './TabBar.css';
 
 export function TabBar() {
   const [tabs, setTabs] = useState<TabInfo[]>([]);
@@ -65,23 +65,26 @@ export function TabBar() {
   };
 
   return (
-    <div className="tabbar">
-      <div className="tabbar-tabs">
+    <div className="h-tabbar min-h-tabbar bg-tertiary flex items-stretch overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:h-0">
+      <div className="flex items-stretch">
         {tabs.map((tab) => (
           <div
             key={tab.id}
-            className={`tab ${activeTabId === tab.id ? 'active' : ''}`}
+            className={cn(
+              'group flex items-center gap-2 px-3 bg-tertiary border-r border-default cursor-pointer min-w-[100px] max-w-[200px] transition-colors duration-150 hover:bg-hover',
+              activeTabId === tab.id && 'bg-primary border-b border-b-bg-primary -mb-px'
+            )}
             onClick={() => handleTabClick(tab.id)}
           >
-            <span className={`tab-title ${tab.isDirty ? 'dirty' : ''}`}>
-              {tab.isDirty && <span className="dirty-indicator">●</span>}
+            <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm flex items-center gap-1">
+              {tab.isDirty && <span className="text-fg-secondary text-[8px]">●</span>}
               {tab.name}
             </span>
             <IconButton
               icon="x"
               size="sm"
               variant="ghost"
-              className="tab-close"
+              className="w-[18px] h-[18px] flex items-center justify-center rounded-sm text-sm text-fg-secondary opacity-0 transition-opacity duration-150 group-hover:opacity-100"
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleTabCloseClick(e, tab.id)}
             />
           </div>
