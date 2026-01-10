@@ -7,36 +7,43 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: {
-          primary: 'var(--bg-primary)',
-          secondary: 'var(--bg-secondary)',
-          tertiary: 'var(--bg-tertiary)',
-          hover: 'var(--bg-hover)',
-          active: 'var(--bg-active)',
+        primary: 'var(--bg-primary)',
+        secondary: 'var(--bg-secondary)',
+        tertiary: 'var(--bg-tertiary)',
+        hover: 'var(--bg-hover)',
+        active: 'var(--bg-active)',
+        accent: {
+          DEFAULT: 'var(--accent-color)',
+          hover: 'var(--accent-hover)',
         },
+        border: {
+          DEFAULT: 'var(--border-color)',
+        },
+        diff: {
+          added: 'var(--diff-added-bg)',
+          removed: 'var(--diff-removed-bg)',
+          modified: 'var(--diff-modified-bg)',
+        },
+      },
+      textColor: {
         fg: {
           primary: 'var(--fg-primary)',
           secondary: 'var(--fg-secondary)',
           muted: 'var(--fg-muted)',
         },
-        border: {
-          DEFAULT: 'var(--border-color)',
-        },
-        accent: {
-          DEFAULT: 'var(--accent-color)',
-          hover: 'var(--accent-hover)',
-        },
+        accent: 'var(--accent-color)',
         diff: {
-          'added-bg': 'var(--diff-added-bg)',
-          'added-fg': 'var(--diff-added-fg)',
-          'removed-bg': 'var(--diff-removed-bg)',
-          'removed-fg': 'var(--diff-removed-fg)',
-          'modified-bg': 'var(--diff-modified-bg)',
-          'modified-fg': 'var(--diff-modified-fg)',
+          added: 'var(--diff-added-fg)',
+          removed: 'var(--diff-removed-fg)',
+          modified: 'var(--diff-modified-fg)',
         },
       },
+      borderColor: {
+        default: 'var(--border-color)',
+        accent: 'var(--accent-color)',
+      },
       fontFamily: {
-        mono: ['var(--font-family)', 'monospace'],
+        mono: ['var(--editor-font-family)', 'monospace'],
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       fontSize: {

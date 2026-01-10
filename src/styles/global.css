@@ -77,9 +77,13 @@
     font: inherit;
   }
 
-  button:focus {
+  button:focus-visible {
     outline: 1px solid var(--accent-color);
     outline-offset: -1px;
+  }
+
+  button:focus:not(:focus-visible) {
+    outline: none;
   }
 
   input, textarea, select {
@@ -107,27 +111,5 @@
 }
 
 @layer utilities {
-  .text-fg-primary { color: var(--fg-primary); }
-  .text-fg-secondary { color: var(--fg-secondary); }
-  .text-fg-muted { color: var(--fg-muted); }
-  .text-accent { color: var(--accent-color); }
-  .text-diff-added { color: var(--diff-added-fg); }
-  .text-diff-removed { color: var(--diff-removed-fg); }
-  .text-diff-modified { color: var(--diff-modified-fg); }
-
-  .bg-primary { background-color: var(--bg-primary); }
-  .bg-secondary { background-color: var(--bg-secondary); }
-  .bg-tertiary { background-color: var(--bg-tertiary); }
-  .bg-hover { background-color: var(--bg-hover); }
-  .bg-active { background-color: var(--bg-active); }
-  .bg-accent { background-color: var(--accent-color); }
-  .bg-accent-hover { background-color: var(--accent-hover); }
-  .bg-diff-added { background-color: var(--diff-added-bg); }
-  .bg-diff-removed { background-color: var(--diff-removed-bg); }
-  .bg-diff-modified { background-color: var(--diff-modified-bg); }
-
-  .border-default { border-color: var(--border-color); }
-  .border-accent { border-color: var(--accent-color); }
-
   .font-mono-editor { font-family: var(--editor-font-family); }
 }

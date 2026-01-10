@@ -42,7 +42,6 @@ export function IconButton({
       className={cn(
         'inline-flex items-center justify-center gap-1 border-none bg-transparent text-fg-secondary cursor-pointer rounded transition-colors duration-150',
         'hover:bg-hover hover:text-fg-primary',
-        'active:bg-tertiary',
         'focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent focus-visible:-outline-offset-1',
         SIZE_CLASSES[size],
         VARIANT_CLASSES[variant],

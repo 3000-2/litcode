@@ -82,7 +82,7 @@ export function Icon({
   size = 16,
   strokeWidth = 1.5,
   className,
-  fill,
+  fill = 'none',
 }: IconProps) {
   const LucideComponent: LucideIcon = ICONS[name];
   return (

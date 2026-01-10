@@ -34,8 +34,8 @@ export function Layout() {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="h-7 bg-primary titlebar-drag-region flex items-center justify-center">
-        <span className="text-xs text-fg-secondary select-none">Litcode</span>
+      <div className="h-10 bg-primary titlebar-drag-region flex items-center justify-center">
+        <span className="text-sm font-semibold text-fg-secondary select-none">Litcode</span>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
