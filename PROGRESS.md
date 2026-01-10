@@ -1,0 +1,240 @@
+# Litcode 개발 진행 상황
+
+## 완료된 작업 ✅
+
+### Phase 0: 프로젝트 초기화
+- [x] Tauri + React + TypeScript 보일러플레이트 생성
+- [x] 프로젝트 설정 (package.json, Cargo.toml, tauri.conf.json)
+- [x] 플러그인 시스템 코어 구현
+  - `src/core/types.ts` - 타입 정의
+  - `src/core/event-bus.ts` - 이벤트 버스
+  - `src/core/plugin-api.ts` - 플러그인 API 및 레지스트리
+  - `src/core/plugin-loader.ts` - 플러그인 로더
+  - `src/core/ipc.ts` - Tauri IPC 래퍼
+
+### Phase 1: 기본 레이아웃
+- [x] VS Code 스타일 레이아웃
+- [x] 사이드바 (접기/펼치기)
+- [x] 탭바 (다중 파일)
+- [x] 상태바
+- [x] 전역 스타일 (global.css)
+
+### Phase 2: 파일 브라우저 플러그인
+- [x] `src/plugins/file-explorer/index.ts`
+- [x] `src/plugins/file-explorer/components/FileExplorerPanel.tsx`
+- [x] `src/plugins/file-explorer/components/FileTree.tsx`
+- [x] Rust 커맨드: read_file, write_file, read_dir, file_exists, create_dir, remove_path, rename_path
+
+### Phase 3: 에디터 플러그인
+- [x] CodeMirror 6 설치 및 설정
+- [x] `src/plugins/editor/index.ts`
+- [x] `src/plugins/editor/components/Editor.tsx`
+- [x] JavaScript/TypeScript 문법 강조
+- [x] Python 문법 강조
+- [x] One Dark 테마
+- [x] 파일 저장 (Cmd+S)
+- [x] 변경사항 추적 (dirty indicator)
+
+### Phase 4: Git Diff 플러그인
+- [x] `src/plugins/git-diff/index.ts`
+- [x] `src/plugins/git-diff/components/GitDiffPanel.tsx`
+- [x] `src/plugins/git-diff/components/DiffViewer.tsx`
+- [x] Inline diff 뷰
+- [x] Side-by-side diff 뷰
+- [x] 뷰 모드 토글
+- [x] Rust 커맨드: git_status, git_diff, git_revert_file, git_revert_hunk, git_revert_lines, git_stage_file, git_unstage_file
+
+### Phase 5: 디버거 플러그인 (UI만)
+- [x] `src/plugins/debugger/index.ts`
+- [x] `src/plugins/debugger/components/DebuggerPanel.tsx`
+- [x] `src/plugins/debugger/components/DebuggerPanel.css`
+- [x] 디버거 패널 UI
+- [x] 브레이크포인트 관리 UI
+- [x] 변수/콜스택 패널 UI
+- [x] 디버그 컨트롤 버튼
+- [x] **App.tsx에 디버거 플러그인 연결 완료**
+
+### Phase 6: 테마 & 폰트
+- [x] `src/plugins/settings/index.ts`
+- [x] `src/plugins/settings/components/SettingsPanel.tsx`
+- [x] Dark/Light 테마 JSON
+- [x] 테마 전환
+- [x] 폰트 설정 UI
+
+### Phase 7: 빌드 & 배포
+- [x] 프로덕션 빌드
+- [x] DMG 생성
+- [x] 앱 번들 (.app)
+
+### Phase 8: 버그 수정 & 리팩터링
+- [x] TabBar: stale closure 버그 수정 (handleTabClose에서 이전 tabs 상태 참조 문제)
+- [x] Editor.tsx: 첫 파일 열기 시 currentTabId 미설정 버그 수정
+- [x] Editor.tsx: useEffect 의존성 배열 문제로 인한 무한 리렌더링 가능성 수정
+- [x] Editor.tsx: 중복된 EditorState 생성 코드를 createEditorState 헬퍼로 추출
+- [x] DebuggerPanel: useEffect 의존성 누락 수정 (useCallback으로 핸들러 래핑)
+- [x] plugin-api.ts: 동적 import를 정적 import로 변경 (번들 크기 최적화)
+- [x] SettingsPanel: useEffect 의존성 경고 수정 (useCallback으로 applyTheme/applyFont 래핑)
+
+---
+
+## 남은 작업 📋
+
+### 향후 구현 필요
+
+#### 디버거 완성 (DAP)
+- [ ] DAP 클라이언트 구현 (Rust)
+- [ ] vscode-js-debug 어댑터 연동 (Node.js)
+- [ ] debugpy 어댑터 연동 (Python)
+- [ ] delve 어댑터 연동 (Go)
+- [ ] 에디터 gutter에 브레이크포인트 표시
+- [ ] 디버그 중 라인 하이라이트
+
+#### 에디터 개선
+- [ ] Go 문법 강조 (@codemirror/lang-go 설치 필요)
+- [ ] 검색/바꾸기
+- [ ] 다중 커서
+- [ ] 코드 접기
+
+#### 테마 & 폰트 완성
+- [ ] ~/.litcode/themes/ 에서 커스텀 테마 로딩
+- [ ] ~/.litcode/fonts/ 에서 커스텀 폰트 로딩
+- [ ] 추가 내장 테마 (Dracula, Nord, Monokai)
+
+#### 기타
+- [ ] 파일 생성/삭제/이름변경 UI
+- [ ] Stage/Unstage UI
+- [ ] 터미널 플러그인
+- [ ] 검색 플러그인
+- [ ] LSP 지원
+
+---
+
+## 파일 위치
+
+### 생성된 모든 파일
+
+```
+litcode/
+├── src/
+│   ├── core/
+│   │   ├── types.ts
+│   │   ├── event-bus.ts
+│   │   ├── plugin-api.ts
+│   │   ├── plugin-loader.ts
+│   │   ├── ipc.ts
+│   │   └── index.ts
+│   │
+│   ├── plugins/
+│   │   ├── file-explorer/
+│   │   │   ├── index.ts
+│   │   │   └── components/
+│   │   │       ├── FileExplorerPanel.tsx
+│   │   │       ├── FileExplorerPanel.css
+│   │   │       ├── FileTree.tsx
+│   │   │       └── FileTree.css
+│   │   │
+│   │   ├── editor/
+│   │   │   ├── index.ts
+│   │   │   └── components/
+│   │   │       ├── Editor.tsx
+│   │   │       └── Editor.css
+│   │   │
+│   │   ├── git-diff/
+│   │   │   ├── index.ts
+│   │   │   └── components/
+│   │   │       ├── GitDiffPanel.tsx
+│   │   │       ├── GitDiffPanel.css
+│   │   │       ├── DiffViewer.tsx
+│   │   │       └── DiffViewer.css
+│   │   │
+│   │   ├── debugger/
+│   │   │   ├── index.ts
+│   │   │   └── components/
+│   │   │       ├── DebuggerPanel.tsx
+│   │   │       └── DebuggerPanel.css
+│   │   │
+│   │   └── settings/
+│   │       ├── index.ts
+│   │       └── components/
+│   │           ├── SettingsPanel.tsx
+│   │           └── SettingsPanel.css
+│   │
+│   ├── ui/
+│   │   ├── Layout.tsx
+│   │   ├── Layout.css
+│   │   ├── Sidebar.tsx
+│   │   ├── Sidebar.css
+│   │   ├── TabBar.tsx
+│   │   ├── TabBar.css
+│   │   ├── StatusBar.tsx
+│   │   ├── StatusBar.css
+│   │   └── index.ts
+│   │
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── themes/
+│   │       ├── dark.json
+│   │       └── light.json
+│   │
+│   ├── App.tsx
+│   └── main.tsx
+│
+├── src-tauri/
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── lib.rs
+│   │   └── commands/
+│   │       ├── mod.rs
+│   │       ├── fs.rs
+│   │       └── git.rs
+│   │
+│   ├── Cargo.toml
+│   └── tauri.conf.json
+│
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+### 빌드 결과물
+
+```
+src-tauri/target/release/bundle/
+├── macos/
+│   └── Litcode.app (9.1 MB)
+└── dmg/
+    └── Litcode_0.1.0_aarch64.dmg (3.5 MB)
+```
+
+---
+
+## 재개 방법
+
+1. **터미널 열기**
+   ```bash
+   cd /Users/parksangcheon/Desktop/side/litcode
+   ```
+
+2. **빌드 & 테스트**
+   ```bash
+   npm run tauri build
+   open src-tauri/target/release/bundle/macos/Litcode.app
+   ```
+
+3. **개발 모드** (수정하면서 테스트)
+   ```bash
+   npm run tauri dev
+   ```
+
+---
+
+## 변경 이력
+
+### 2024-01-10
+- 디버거 플러그인 App.tsx 연결 완료
+- 버그 수정 및 코드 품질 개선
+  - TabBar stale closure 버그 수정
+  - Editor.tsx 리팩터링 (중복 코드 제거, 버그 수정)
+  - DebuggerPanel useCallback 적용
+  - plugin-api.ts 정적 import로 변경
+  - SettingsPanel useCallback 적용

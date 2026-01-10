@@ -1,0 +1,32 @@
+.file-tree {
+  user-select: none;
+}
+
+.file-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.file-tree-row:hover {
+  background: var(--bg-hover);
+}
+
+.file-tree-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.file-tree-name {
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-tree-loading {
+  font-size: 10px;
+  color: var(--fg-muted);
+}

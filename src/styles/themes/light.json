@@ -1,0 +1,29 @@
+{
+  "name": "Light",
+  "type": "light",
+  "colors": {
+    "background": "#ffffff",
+    "foreground": "#333333",
+    "sidebar": "#f3f3f3",
+    "editor": "#ffffff",
+    "accent": "#0078d4",
+    "border": "#e5e5e5",
+    "selection": "#add6ff",
+    "lineNumber": "#999999",
+    "lineNumberActive": "#333333",
+    "diff": {
+      "added": "#28a74530",
+      "removed": "#dc354530",
+      "modified": "#ffc10730"
+    }
+  },
+  "syntax": {
+    "keyword": "#0000ff",
+    "string": "#a31515",
+    "number": "#098658",
+    "comment": "#008000",
+    "function": "#795e26",
+    "variable": "#001080",
+    "type": "#267f99"
+  }
+}

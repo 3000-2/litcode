@@ -1,0 +1,239 @@
+.debugger-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.debugger-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.debugger-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fg-secondary);
+}
+
+.debugger-config {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.debugger-config select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--fg-primary);
+  font-size: 12px;
+}
+
+.debugger-controls {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.control-btn {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  color: var(--fg-primary);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background 0.15s;
+}
+
+.control-btn:hover {
+  background: var(--bg-hover);
+}
+
+.control-btn.start {
+  background: var(--diff-added-bg);
+  color: var(--diff-added-fg);
+}
+
+.control-btn.start:hover {
+  background: var(--diff-added-fg);
+  color: white;
+}
+
+.control-btn.stop {
+  background: var(--diff-removed-bg);
+  color: var(--diff-removed-fg);
+}
+
+.control-btn.stop:hover {
+  background: var(--diff-removed-fg);
+  color: white;
+}
+
+.debugger-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.running {
+  background: var(--diff-added-fg);
+  animation: pulse 1s infinite;
+}
+
+.status-indicator.paused {
+  background: var(--diff-modified-fg);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.debugger-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.debugger-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+}
+
+.section-header:hover {
+  background: var(--bg-hover);
+}
+
+.bp-count {
+  background: var(--accent-color);
+  color: white;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+.section-content {
+  padding: 4px 0;
+}
+
+.empty-message {
+  padding: 12px;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.variable-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.var-name {
+  color: var(--fg-primary);
+  font-weight: 500;
+}
+
+.var-value {
+  flex: 1;
+  color: var(--diff-added-fg);
+  font-family: var(--font-family);
+}
+
+.var-type {
+  color: var(--fg-muted);
+  font-size: 10px;
+}
+
+.stack-frame {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.stack-frame:hover {
+  background: var(--bg-hover);
+}
+
+.frame-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.frame-location {
+  font-size: 11px;
+  color: var(--fg-secondary);
+}
+
+.breakpoint-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.breakpoint-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent-color);
+}
+
+.bp-location {
+  flex: 1;
+  font-family: var(--font-family);
+}
+
+.bp-remove {
+  opacity: 0;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  color: var(--fg-secondary);
+  font-size: 14px;
+}
+
+.breakpoint-item:hover .bp-remove {
+  opacity: 1;
+}
+
+.bp-remove:hover {
+  background: var(--diff-removed-bg);
+  color: var(--diff-removed-fg);
+}
