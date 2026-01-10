@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Circle } from 'lucide-react';
+import { IconButton, Button, Select, EmptyState } from '../../../components';
 import { eventBus, Events } from '../../../core';
 import './DebuggerPanel.css';
 
@@ -132,41 +134,31 @@ export function DebuggerPanel() {
       </div>
 
       <div className="debugger-config">
-        <select
+        <Select
           value={selectedConfig}
-          onChange={(e) => setSelectedConfig(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedConfig(e.target.value)}
           disabled={debugState !== 'idle'}
         >
           <option value="node">Node.js</option>
           <option value="python">Python</option>
           <option value="go">Go</option>
-        </select>
+        </Select>
       </div>
 
       <div className="debugger-controls">
         {debugState === 'idle' ? (
-          <button className="control-btn start" onClick={handleStart} title="Start (F5)">
-            ▶ Start
-          </button>
+          <Button icon="play" onClick={handleStart} title="Start (F5)" className="control-btn start">
+            Start
+          </Button>
         ) : (
           <>
-            <button className="control-btn stop" onClick={handleStop} title="Stop (Shift+F5)">
-              ⬛
-            </button>
+            <IconButton icon="square" onClick={handleStop} title="Stop (Shift+F5)" className="control-btn stop" />
             {debugState === 'paused' && (
               <>
-                <button className="control-btn" onClick={handleContinue} title="Continue (F8)">
-                  ▶
-                </button>
-                <button className="control-btn" onClick={handleStepOver} title="Step Over (F10)">
-                  ⤵
-                </button>
-                <button className="control-btn" onClick={handleStepInto} title="Step Into (F11)">
-                  ↓
-                </button>
-                <button className="control-btn" onClick={handleStepOut} title="Step Out (Shift+F11)">
-                  ↑
-                </button>
+                <IconButton icon="play" onClick={handleContinue} title="Continue (F8)" className="control-btn" />
+                <IconButton icon="step-forward" onClick={handleStepOver} title="Step Over (F10)" className="control-btn" />
+                <IconButton icon="arrow-down" onClick={handleStepInto} title="Step Into (F11)" className="control-btn" />
+                <IconButton icon="arrow-up" onClick={handleStepOut} title="Step Out (Shift+F11)" className="control-btn" />
               </>
             )}
           </>
@@ -187,7 +179,7 @@ export function DebuggerPanel() {
           </div>
           <div className="section-content">
             {variables.length === 0 ? (
-              <div className="empty-message">No variables</div>
+              <EmptyState message="No variables" />
             ) : (
               variables.map((v, i) => (
                 <div key={i} className="variable-item">
@@ -206,7 +198,7 @@ export function DebuggerPanel() {
           </div>
           <div className="section-content">
             {stackFrames.length === 0 ? (
-              <div className="empty-message">No call stack</div>
+              <EmptyState message="No call stack" />
             ) : (
               stackFrames.map((frame) => (
                 <div key={frame.id} className="stack-frame">
@@ -227,24 +219,26 @@ export function DebuggerPanel() {
           </div>
           <div className="section-content">
             {breakpoints.length === 0 ? (
-              <div className="empty-message">No breakpoints</div>
+              <EmptyState message="No breakpoints" />
             ) : (
               breakpoints.map((bp) => (
                 <div key={bp.id} className="breakpoint-item">
-                  <input
-                    type="checkbox"
-                    checked={bp.enabled}
-                    onChange={() => handleToggleBreakpoint(bp.id)}
-                  />
+                  <button
+                    className={`bp-toggle ${bp.enabled ? 'enabled' : ''}`}
+                    onClick={() => handleToggleBreakpoint(bp.id)}
+                  >
+                    <Circle size={10} strokeWidth={2} fill={bp.enabled ? 'currentColor' : 'none'} />
+                  </button>
                   <span className="bp-location truncate">
                     {bp.path.split('/').pop()}:{bp.line}
                   </span>
-                  <button
+                  <IconButton
+                    icon="x"
+                    size="sm"
+                    variant="ghost"
                     className="bp-remove"
                     onClick={() => handleRemoveBreakpoint(bp.id)}
-                  >
-                    ×
-                  </button>
+                  />
                 </div>
               ))
             )}

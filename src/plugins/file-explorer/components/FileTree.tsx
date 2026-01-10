@@ -1,5 +1,14 @@
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import {
+  Folder,
+  FolderOpen,
+  File,
+  FileText,
+  FileCode,
+  FileType,
+  Braces,
+} from 'lucide-react';
 import type { DirEntry } from '../../../core';
 import './FileTree.css';
 
@@ -33,6 +42,9 @@ interface FileTreeItemProps {
   level: number;
 }
 
+const ICON_SIZE = 16;
+const ICON_STROKE = 1.5;
+
 function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemProps) {
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState<DirEntry[]>([]);
@@ -63,33 +75,42 @@ function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemP
     }
   };
 
-  const getFileIcon = (name: string, isDir: boolean): string => {
-    if (isDir) return expanded ? '📂' : '📁';
-    
+  const getFileIcon = (name: string, isDir: boolean) => {
+    if (isDir) {
+      return expanded ? (
+        <FolderOpen size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-folder" />
+      ) : (
+        <Folder size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-folder" />
+      );
+    }
+
     const ext = name.split('.').pop()?.toLowerCase();
     switch (ext) {
       case 'ts':
       case 'tsx':
-        return '🔷';
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-ts" />;
       case 'js':
       case 'jsx':
-        return '🟨';
+      case 'mjs':
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-js" />;
       case 'py':
-        return '🐍';
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-py" />;
       case 'go':
-        return '🔵';
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-go" />;
       case 'rs':
-        return '🦀';
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-rs" />;
       case 'json':
-        return '📋';
+        return <Braces size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-json" />;
       case 'md':
-        return '📝';
+        return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-md" />;
       case 'css':
-        return '🎨';
+      case 'scss':
+      case 'less':
+        return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-css" />;
       case 'html':
-        return '🌐';
+        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-html" />;
       default:
-        return '📄';
+        return <File size={ICON_SIZE} strokeWidth={ICON_STROKE} className="icon-file" />;
     }
   };
 

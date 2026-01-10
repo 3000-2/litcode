@@ -75,6 +75,40 @@
 - [x] plugin-api.ts: 동적 import를 정적 import로 변경 (번들 크기 최적화)
 - [x] SettingsPanel: useEffect 의존성 경고 수정 (useCallback으로 applyTheme/applyFont 래핑)
 
+### Phase 9: CLI 지원
+- [x] main.rs: CLI 인자 파싱 (`litcode .`, `litcode /path`)
+- [x] lib.rs: `get_initial_path` 커맨드 추가
+- [x] lib.rs: `install_cli`, `uninstall_cli`, `is_cli_installed` 커맨드 추가
+- [x] SettingsPanel: "Install CLI" / "Uninstall CLI" 버튼 추가
+- [x] FileExplorerPanel: 초기 경로 로딩 지원
+
+### Phase 10: Lucide 아이콘 마이그레이션
+- [x] lucide-react 설치
+- [x] Sidebar 아이콘 Lucide로 변경
+- [x] FileTree 파일/폴더 아이콘 Lucide로 변경
+- [x] GitDiffPanel 아이콘 Lucide로 변경
+- [x] DebuggerPanel 아이콘 Lucide로 변경
+- [x] TabBar, FileExplorerPanel 아이콘 Lucide로 변경
+
+### Phase 11: 공통 컴포넌트 라이브러리
+- [x] `src/components/` 폴더 생성
+- [x] Icon 컴포넌트 (Lucide wrapper)
+- [x] IconButton 컴포넌트 (sm/md/lg, default/ghost/danger)
+- [x] Button 컴포넌트 (primary/secondary/danger/ghost, loading 상태)
+- [x] Input 컴포넌트 (icon 지원)
+- [x] Select 컴포넌트 (sm/md/lg, error, fullWidth)
+- [x] SelectOption 컴포넌트
+- [x] Radio 컴포넌트 (단일 라디오 버튼)
+- [x] RadioGroup 컴포넌트 (vertical/horizontal)
+- [x] Toggle 컴포넌트 (sm/md/lg)
+- [x] Slider 컴포넌트 (valueSuffix 지원)
+- [x] Checkbox 컴포넌트
+- [x] Panel 컴포넌트 (title + actions + content)
+- [x] Section 컴포넌트 (title + hint + content)
+- [x] EmptyState 컴포넌트
+- [x] 공통 CSS (components.css)
+- [x] 기존 파일들 리팩터링 (공통 컴포넌트 사용)
+
 ---
 
 ## 남은 작업 📋
@@ -116,6 +150,22 @@
 ```
 litcode/
 ├── src/
+│   ├── components/
+│   │   ├── index.ts
+│   │   ├── Icon.tsx
+│   │   ├── IconButton.tsx
+│   │   ├── Button.tsx
+│   │   ├── Input.tsx
+│   │   ├── Select.tsx
+│   │   ├── Radio.tsx
+│   │   ├── Toggle.tsx
+│   │   ├── Slider.tsx
+│   │   ├── Checkbox.tsx
+│   │   ├── Panel.tsx
+│   │   ├── Section.tsx
+│   │   ├── EmptyState.tsx
+│   │   └── components.css
+│   │
 │   ├── core/
 │   │   ├── types.ts
 │   │   ├── event-bus.ts
@@ -238,3 +288,13 @@ src-tauri/target/release/bundle/
   - DebuggerPanel useCallback 적용
   - plugin-api.ts 정적 import로 변경
   - SettingsPanel useCallback 적용
+- CLI 지원 추가
+  - `litcode .` 또는 `litcode /path/to/folder` 명령어 지원
+  - Settings에서 CLI 설치/제거 가능
+- Lucide 아이콘 마이그레이션
+  - emoji 아이콘을 Lucide React 아이콘으로 전환
+  - 모든 UI 컴포넌트에서 일관된 아이콘 사용
+- 공통 컴포넌트 라이브러리 추가
+  - `src/components/` 폴더에 재사용 가능한 UI 컴포넌트 생성
+  - Icon, IconButton, Button, Input, Select, Slider, Checkbox, Panel, Section, EmptyState
+  - 기존 파일들을 공통 컴포넌트 사용하도록 리팩터링

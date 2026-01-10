@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '../../components';
 import type { LitcodePlugin, PluginAPI } from '../../core';
 import { DebuggerPanel } from './components/DebuggerPanel';
 
@@ -10,7 +12,7 @@ export const debuggerPlugin: LitcodePlugin = {
   async activate(api: PluginAPI) {
     api.ui.registerSidebar({
       id: 'debugger',
-      icon: '🐛',
+      icon: createElement(Icon, { name: 'bug', size: 20 }),
       title: 'Debug',
       component: DebuggerPanel,
       order: 2,

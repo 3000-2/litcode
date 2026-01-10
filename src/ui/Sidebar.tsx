@@ -1,3 +1,4 @@
+import { Icon } from '../components';
 import type { SidebarConfig } from '../core';
 import './Sidebar.css';
 
@@ -20,7 +21,7 @@ export function Sidebar({ items, activeId, collapsed, onItemClick, onCollapseTog
             onClick={() => onItemClick(item.id)}
             title={item.title}
           >
-            <span className="icon">{item.icon}</span>
+            {item.icon}
           </button>
         ))}
       </div>
@@ -31,7 +32,7 @@ export function Sidebar({ items, activeId, collapsed, onItemClick, onCollapseTog
           onClick={onCollapseToggle}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <span className="icon">{collapsed ? '▶' : '◀'}</span>
+          <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} size={16} />
         </button>
       </div>
     </div>

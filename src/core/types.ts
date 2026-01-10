@@ -25,7 +25,7 @@ export interface TabInfo {
 
 export interface SidebarConfig {
   id: string;
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   component: React.ComponentType;
   order?: number;

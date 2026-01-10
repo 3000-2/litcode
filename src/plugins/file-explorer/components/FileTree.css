@@ -16,8 +16,60 @@
 }
 
 .file-tree-icon {
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.file-tree-icon svg {
+  color: var(--fg-secondary);
+}
+
+.file-tree-icon .icon-folder {
+  color: #dcb67a;
+}
+
+.file-tree-icon .icon-ts {
+  color: #3178c6;
+}
+
+.file-tree-icon .icon-js {
+  color: #f7df1e;
+}
+
+.file-tree-icon .icon-py {
+  color: #3776ab;
+}
+
+.file-tree-icon .icon-go {
+  color: #00add8;
+}
+
+.file-tree-icon .icon-rs {
+  color: #dea584;
+}
+
+.file-tree-icon .icon-json {
+  color: #cbcb41;
+}
+
+.file-tree-icon .icon-md {
+  color: #519aba;
+}
+
+.file-tree-icon .icon-css {
+  color: #563d7c;
+}
+
+.file-tree-icon .icon-html {
+  color: #e34c26;
+}
+
+.file-tree-icon .icon-file {
+  color: var(--fg-secondary);
 }
 
 .file-tree-name {
@@ -28,5 +80,5 @@
 
 .file-tree-loading {
   font-size: 10px;
-  color: var(--fg-muted);
+  color: var(--fg-secondary);
 }

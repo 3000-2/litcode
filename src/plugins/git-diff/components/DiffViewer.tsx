@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { IconButton, Button } from '../../../components';
 import './DiffViewer.css';
 
 interface GitDiffLine {
@@ -95,22 +96,30 @@ export function DiffViewer({ repoPath, filePath, onClose, onRevert }: DiffViewer
             <span className="diff-file-path">{filePath}</span>
           </div>
           <div className="diff-viewer-actions">
-            <button
-              className={`view-mode-btn ${viewMode === 'inline' ? 'active' : ''}`}
+            <Button
+              variant={viewMode === 'inline' ? 'primary' : 'ghost'}
+              size="sm"
               onClick={() => setViewMode('inline')}
             >
               Inline
-            </button>
-            <button
-              className={`view-mode-btn ${viewMode === 'side-by-side' ? 'active' : ''}`}
+            </Button>
+            <Button
+              variant={viewMode === 'side-by-side' ? 'primary' : 'ghost'}
+              size="sm"
               onClick={() => setViewMode('side-by-side')}
             >
-              Side by Side
-            </button>
-            <button className="revert-all-btn" onClick={handleRevertFile}>
+              Split
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              icon="trash"
+              onClick={handleRevertFile}
+              title="Discard all changes"
+            >
               Discard All
-            </button>
-            <button className="close-btn" onClick={onClose}>×</button>
+            </Button>
+            <IconButton icon="x" size="lg" onClick={onClose} title="Close" />
           </div>
         </div>
 
@@ -154,13 +163,16 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
             <span className="hunk-info">
               @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
             </span>
-            <button
-              className="hunk-revert"
+            <Button
+              variant="ghost"
+              size="sm"
+              icon="undo"
               onClick={() => onRevertHunk(hunkIndex)}
               title="Revert this block"
+              className="hunk-revert"
             >
-              ↩ Revert Block
-            </button>
+              Revert Block
+            </Button>
           </div>
           <div className="hunk-lines">
             {hunk.lines.map((line, lineIndex) => {
@@ -181,13 +193,14 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
                   </span>
                   <span className="line-content">{line.content}</span>
                   {(line.type === 'add' || line.type === 'delete') && lineNum && (
-                    <button
+                    <IconButton
+                      icon="undo"
+                      size="sm"
+                      variant="ghost"
                       className="line-revert"
                       onClick={() => onRevertLine(lineNum)}
                       title="Revert this line"
-                    >
-                      ↩
-                    </button>
+                    />
                   )}
                 </div>
               );
@@ -213,13 +226,16 @@ function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
               <span className="hunk-info">
                 @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
               </span>
-              <button
-                className="hunk-revert"
+              <Button
+                variant="ghost"
+                size="sm"
+                icon="undo"
                 onClick={() => onRevertHunk(hunkIndex)}
                 title="Revert this block"
+                className="hunk-revert"
               >
-                ↩ Revert Block
-              </button>
+                Revert Block
+              </Button>
             </div>
             <div className="hunk-columns">
               <div className="hunk-column old">
@@ -248,13 +264,14 @@ function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
                       <span className="line-number">{line.newLineNumber || ''}</span>
                       <span className="line-content">{line.content}</span>
                       {line.type === 'add' && lineNum && (
-                        <button
+                        <IconButton
+                          icon="undo"
+                          size="sm"
+                          variant="ghost"
                           className="line-revert"
                           onClick={() => onRevertLine(lineNum)}
                           title="Revert"
-                        >
-                          ↩
-                        </button>
+                        />
                       )}
                     </div>
                   );

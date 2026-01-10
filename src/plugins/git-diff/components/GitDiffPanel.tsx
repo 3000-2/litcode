@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { GitBranch } from 'lucide-react';
+import { IconButton, Input } from '../../../components';
 import { eventBus } from '../../../core';
 import { DiffViewer } from './DiffViewer';
 import './GitDiffPanel.css';
@@ -62,7 +64,7 @@ export function GitDiffPanel() {
   const getStatusIcon = (status: string): string => {
     switch (status) {
       case 'added':
-        return '+';
+        return 'A';
       case 'modified':
         return 'M';
       case 'deleted':
@@ -92,16 +94,15 @@ export function GitDiffPanel() {
       <div className="git-diff-header">
         <span className="git-diff-title">SOURCE CONTROL</span>
         <div className="git-diff-actions">
-          <button onClick={loadStatus} title="Refresh">↻</button>
+          <IconButton icon="refresh" size="sm" onClick={loadStatus} title="Refresh" />
         </div>
       </div>
 
       <div className="git-diff-path">
-        <input
-          type="text"
+        <Input
           value={repoPath}
-          onChange={(e) => setRepoPath(e.target.value)}
-          onKeyDown={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRepoPath(e.target.value)}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') loadStatus();
           }}
           placeholder="Repository path..."
@@ -110,7 +111,7 @@ export function GitDiffPanel() {
 
       {status && (
         <div className="git-diff-branch">
-          <span className="branch-icon">⎇</span>
+          <GitBranch size={14} strokeWidth={1.5} />
           <span className="branch-name">{status.branch}</span>
           {status.files.length > 0 && (
             <span className="changes-count">{status.files.length}</span>
@@ -143,16 +144,17 @@ export function GitDiffPanel() {
                     <span className="file-name truncate">
                       {file.path.split('/').pop()}
                     </span>
-                    <button
+                    <IconButton
+                      icon="undo"
+                      size="sm"
+                      variant="ghost"
                       className="file-revert"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.stopPropagation();
                         handleRevertFile(file.path);
                       }}
                       title="Discard changes"
-                    >
-                      ↩
-                    </button>
+                    />
                   </div>
                 ))}
               </div>

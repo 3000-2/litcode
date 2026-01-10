@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { IconButton, Input } from '../../../components';
 import { eventBus, Events, type DirEntry } from '../../../core';
 import { FileTree } from './FileTree';
 import './FileExplorerPanel.css';
@@ -9,6 +10,7 @@ export function FileExplorerPanel() {
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   const loadDirectory = useCallback(async (path: string) => {
     setLoading(true);
@@ -25,8 +27,19 @@ export function FileExplorerPanel() {
   }, []);
 
   useEffect(() => {
-    loadDirectory(rootPath);
-  }, [rootPath, loadDirectory]);
+    invoke<string>('get_initial_path')
+      .then((initialPath) => {
+        if (initialPath) setRootPath(initialPath);
+      })
+      .catch(() => {})
+      .finally(() => setInitialized(true));
+  }, []);
+
+  useEffect(() => {
+    if (initialized) {
+      loadDirectory(rootPath);
+    }
+  }, [rootPath, loadDirectory, initialized]);
 
   useEffect(() => {
     const unsubRefresh = eventBus.on('file-explorer:refresh', () => {
@@ -59,27 +72,26 @@ export function FileExplorerPanel() {
       <div className="file-explorer-header">
         <span className="file-explorer-title">EXPLORER</span>
         <div className="file-explorer-actions">
-          <button
+          <IconButton
+            icon="plus"
+            size="sm"
             onClick={() => eventBus.emit('file-explorer:new-file')}
             title="New File"
-          >
-            +
-          </button>
-          <button
+          />
+          <IconButton
+            icon="refresh"
+            size="sm"
             onClick={() => loadDirectory(rootPath)}
             title="Refresh"
-          >
-            ↻
-          </button>
+          />
         </div>
       </div>
 
       <div className="file-explorer-path">
-        <input
-          type="text"
+        <Input
           value={rootPath}
-          onChange={(e) => setRootPath(e.target.value)}
-          onKeyDown={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRootPath(e.target.value)}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') {
               loadDirectory(rootPath);
             }

@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { Button, Select, SelectOption, Toggle, Slider, Section } from '../../../components';
 import { eventBus, Events, type Settings, type ThemeConfig } from '../../../core';
 import './SettingsPanel.css';
 
@@ -31,6 +33,9 @@ const DEFAULT_SETTINGS: Settings = {
 
 export function SettingsPanel() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [cliInstalled, setCliInstalled] = useState(false);
+  const [cliMessage, setCliMessage] = useState<string | null>(null);
+  const [cliLoading, setCliLoading] = useState(false);
 
   const applyTheme = useCallback((themeName: string) => {
     const theme = BUILT_IN_THEMES[themeName];
@@ -75,6 +80,8 @@ export function SettingsPanel() {
       applyTheme(DEFAULT_SETTINGS.theme);
       applyFont(DEFAULT_SETTINGS.font);
     }
+
+    invoke<boolean>('is_cli_installed').then(setCliInstalled);
   }, [applyTheme, applyFont]);
 
   const saveSettings = useCallback((newSettings: Settings) => {
@@ -104,6 +111,34 @@ export function SettingsPanel() {
     saveSettings({ ...settings, font: { ...settings.font, ligatures } });
   };
 
+  const handleInstallCli = async () => {
+    setCliLoading(true);
+    setCliMessage(null);
+    try {
+      const result = await invoke<string>('install_cli');
+      setCliMessage(result);
+      setCliInstalled(true);
+    } catch (err) {
+      setCliMessage(String(err));
+    } finally {
+      setCliLoading(false);
+    }
+  };
+
+  const handleUninstallCli = async () => {
+    setCliLoading(true);
+    setCliMessage(null);
+    try {
+      const result = await invoke<string>('uninstall_cli');
+      setCliMessage(result);
+      setCliInstalled(false);
+    } catch (err) {
+      setCliMessage(String(err));
+    } finally {
+      setCliLoading(false);
+    }
+  };
+
   return (
     <div className="settings-panel">
       <div className="settings-header">
@@ -111,91 +146,101 @@ export function SettingsPanel() {
       </div>
 
       <div className="settings-content">
-        <div className="settings-section">
-          <h3 className="section-title">Theme</h3>
-          <select
-            className="settings-select"
+        <Section title="Theme">
+          <Select
             value={settings.theme}
-            onChange={(e) => handleThemeChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleThemeChange(e.target.value)}
           >
             {Object.keys(BUILT_IN_THEMES).map((name) => (
-              <option key={name} value={name}>
+              <SelectOption key={name} value={name}>
                 {BUILT_IN_THEMES[name].name}
-              </option>
+              </SelectOption>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Section>
 
-        <div className="settings-section">
-          <h3 className="section-title">Font Family</h3>
-          <select
-            className="settings-select"
+        <Section title="Font Family">
+          <Select
             value={settings.font.family}
-            onChange={(e) => handleFontFamilyChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFontFamilyChange(e.target.value)}
           >
             {BUILT_IN_FONTS.map((font) => (
-              <option key={font} value={font}>
+              <SelectOption key={font} value={font}>
                 {font}
-              </option>
+              </SelectOption>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Section>
 
-        <div className="settings-section">
-          <h3 className="section-title">Font Size</h3>
-          <div className="settings-slider">
-            <input
-              type="range"
-              min="10"
-              max="24"
-              value={settings.font.size}
-              onChange={(e) => handleFontSizeChange(Number(e.target.value))}
-            />
-            <span className="slider-value">{settings.font.size}px</span>
-          </div>
-        </div>
+        <Section title="Font Size">
+          <Slider
+            min={10}
+            max={24}
+            value={settings.font.size}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFontSizeChange(Number(e.target.value))}
+            valueSuffix="px"
+          />
+        </Section>
 
-        <div className="settings-section">
-          <h3 className="section-title">Line Height</h3>
-          <div className="settings-slider">
-            <input
-              type="range"
-              min="1"
-              max="2.5"
-              step="0.1"
-              value={settings.font.lineHeight}
-              onChange={(e) => handleLineHeightChange(Number(e.target.value))}
-            />
-            <span className="slider-value">{settings.font.lineHeight}</span>
-          </div>
-        </div>
+        <Section title="Line Height">
+          <Slider
+            min={1}
+            max={2.5}
+            step={0.1}
+            value={settings.font.lineHeight}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleLineHeightChange(Number(e.target.value))}
+          />
+        </Section>
 
-        <div className="settings-section">
-          <label className="settings-checkbox">
-            <input
-              type="checkbox"
-              checked={settings.font.ligatures}
-              onChange={(e) => handleLigaturesChange(e.target.checked)}
-            />
-            <span>Enable Ligatures</span>
-          </label>
-        </div>
+        <Section>
+          <Toggle
+            checked={settings.font.ligatures}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleLigaturesChange(e.target.checked)}
+          >
+            Enable Ligatures
+          </Toggle>
+        </Section>
 
-        <div className="settings-section">
-          <h3 className="section-title">Custom Theme</h3>
+        <Section
+          title="Shell Command"
+          hint={<>Usage: <code>litcode .</code> or <code>litcode /path/to/folder</code></>}
+        >
           <p className="settings-hint">
-            Place custom theme files in:<br />
-            <code>~/.litcode/themes/</code>
+            Install the 'litcode' command in PATH to open folders from terminal.
           </p>
-        </div>
+          <div className="cli-actions">
+            {cliInstalled ? (
+              <Button
+                variant="danger"
+                onClick={handleUninstallCli}
+                loading={cliLoading}
+              >
+                {cliLoading ? 'Uninstalling...' : 'Uninstall CLI'}
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                onClick={handleInstallCli}
+                loading={cliLoading}
+              >
+                {cliLoading ? 'Installing...' : 'Install CLI'}
+              </Button>
+            )}
+          </div>
+          {cliMessage && (
+            <pre className="cli-message">{cliMessage}</pre>
+          )}
+        </Section>
 
-        <div className="settings-section">
-          <h3 className="section-title">Custom Fonts</h3>
-          <p className="settings-hint">
-            Place custom font files in:<br />
-            <code>~/.litcode/fonts/</code>
-          </p>
-        </div>
+        <Section
+          title="Custom Theme"
+          hint={<>Place custom theme files in:<br /><code>~/.litcode/themes/</code></>}
+        />
+
+        <Section
+          title="Custom Fonts"
+          hint={<>Place custom font files in:<br /><code>~/.litcode/fonts/</code></>}
+        />
       </div>
     </div>
   );

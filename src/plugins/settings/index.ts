@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '../../components';
 import type { LitcodePlugin, PluginAPI } from '../../core';
 import { SettingsPanel } from './components/SettingsPanel';
 
@@ -10,7 +12,7 @@ export const settingsPlugin: LitcodePlugin = {
   async activate(api: PluginAPI) {
     api.ui.registerSidebar({
       id: 'settings',
-      icon: '⚙',
+      icon: createElement(Icon, { name: 'settings', size: 20 }),
       title: 'Settings',
       component: SettingsPanel,
       order: 99,

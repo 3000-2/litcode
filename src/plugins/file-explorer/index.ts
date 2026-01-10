@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '../../components';
 import type { LitcodePlugin, PluginAPI } from '../../core';
 import { FileExplorerPanel } from './components/FileExplorerPanel';
 
@@ -10,7 +12,7 @@ export const fileExplorerPlugin: LitcodePlugin = {
   async activate(api: PluginAPI) {
     api.ui.registerSidebar({
       id: 'file-explorer',
-      icon: '📁',
+      icon: createElement(Icon, { name: 'files', size: 20 }),
       title: 'Explorer',
       component: FileExplorerPanel,
       order: 0,

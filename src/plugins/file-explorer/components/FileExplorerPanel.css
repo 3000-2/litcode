@@ -9,6 +9,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
+  min-height: 36px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -25,31 +26,9 @@
   gap: 4px;
 }
 
-.file-explorer-actions button {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-  color: var(--fg-secondary);
-  font-size: 14px;
-}
-
-.file-explorer-actions button:hover {
-  background: var(--bg-hover);
-  color: var(--fg-primary);
-}
-
 .file-explorer-path {
-  padding: 8px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border-color);
-}
-
-.file-explorer-path input {
-  width: 100%;
-  font-size: 11px;
-  padding: 4px 8px;
 }
 
 .file-explorer-content {
@@ -60,10 +39,13 @@
 
 .file-explorer-loading,
 .file-explorer-error {
-  padding: 16px;
+  padding: 24px 12px;
   text-align: center;
-  color: var(--fg-secondary);
   font-size: 12px;
+}
+
+.file-explorer-loading {
+  color: var(--fg-secondary);
 }
 
 .file-explorer-error {

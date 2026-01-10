@@ -9,6 +9,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
+  min-height: 36px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -23,16 +24,6 @@
 .debugger-config {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border-color);
-}
-
-.debugger-config select {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-secondary);
-  color: var(--fg-primary);
-  font-size: 12px;
 }
 
 .debugger-controls {
@@ -53,7 +44,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  transition: background 0.15s;
+  transition: background-color 0.15s;
 }
 
 .control-btn:hover {
@@ -118,7 +109,7 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.section-header {
+.debugger-section .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -130,7 +121,7 @@
   cursor: pointer;
 }
 
-.section-header:hover {
+.debugger-section .section-header:hover {
   background: var(--bg-hover);
 }
 
@@ -142,22 +133,15 @@
   font-size: 10px;
 }
 
-.section-content {
+.debugger-section .section-content {
   padding: 4px 0;
-}
-
-.empty-message {
-  padding: 12px;
-  text-align: center;
-  color: var(--fg-muted);
-  font-size: 12px;
 }
 
 .variable-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px;
+  padding: 6px 12px;
   font-size: 12px;
 }
 
@@ -202,14 +186,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px;
+  padding: 6px 12px;
   font-size: 12px;
 }
 
-.breakpoint-item input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--accent-color);
+.bp-toggle {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+}
+
+.bp-toggle.enabled {
+  color: var(--diff-removed-fg);
 }
 
 .bp-location {
@@ -219,21 +210,9 @@
 
 .bp-remove {
   opacity: 0;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-  color: var(--fg-secondary);
-  font-size: 14px;
+  transition: opacity 0.1s;
 }
 
 .breakpoint-item:hover .bp-remove {
   opacity: 1;
-}
-
-.bp-remove:hover {
-  background: var(--diff-removed-bg);
-  color: var(--diff-removed-fg);
 }

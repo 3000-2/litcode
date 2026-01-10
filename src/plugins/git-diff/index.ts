@@ -1,3 +1,5 @@
+import { createElement } from 'react';
+import { Icon } from '../../components';
 import type { LitcodePlugin, PluginAPI } from '../../core';
 import { GitDiffPanel } from './components/GitDiffPanel';
 
@@ -10,7 +12,7 @@ export const gitDiffPlugin: LitcodePlugin = {
   async activate(api: PluginAPI) {
     api.ui.registerSidebar({
       id: 'git-diff',
-      icon: '🔀',
+      icon: createElement(Icon, { name: 'git-branch', size: 20 }),
       title: 'Source Control',
       component: GitDiffPanel,
       order: 1,

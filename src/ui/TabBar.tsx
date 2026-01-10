@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { IconButton } from '../components';
 import { eventBus, Events, type TabInfo } from '../core';
 import './TabBar.css';
 
@@ -76,12 +77,13 @@ export function TabBar() {
               {tab.isDirty && <span className="dirty-indicator">●</span>}
               {tab.name}
             </span>
-            <button
+            <IconButton
+              icon="x"
+              size="sm"
+              variant="ghost"
               className="tab-close"
-              onClick={(e) => handleTabCloseClick(e, tab.id)}
-            >
-              ×
-            </button>
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleTabCloseClick(e, tab.id)}
+            />
           </div>
         ))}
       </div>
