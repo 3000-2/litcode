@@ -21,14 +21,43 @@ const BUILT_IN_FONTS = [
 
 const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
-  font: {
+  editorFont: {
     family: 'JetBrains Mono',
     size: 13,
     lineHeight: 1.5,
     ligatures: true,
   },
+  uiFontSize: 13,
   customFonts: [],
 };
+
+type LegacySettings = {
+  theme: string;
+  font?: {
+    family: string;
+    size: number;
+    lineHeight: number;
+    ligatures: boolean;
+  };
+  editorFont?: Settings['editorFont'];
+  uiFontSize?: number;
+  customFonts: string[];
+};
+
+function migrateSettings(parsed: LegacySettings): Settings {
+  if (parsed.editorFont) {
+    return parsed as Settings;
+  }
+  if (parsed.font) {
+    return {
+      theme: parsed.theme,
+      editorFont: parsed.font,
+      uiFontSize: 13,
+      customFonts: parsed.customFonts,
+    };
+  }
+  return DEFAULT_SETTINGS;
+}
 
 export function SettingsPanel() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -53,61 +82,75 @@ export function SettingsPanel() {
     eventBus.emit(Events.THEME_CHANGE, { theme: themeName });
   }, []);
 
-  const applyFont = useCallback((font: Settings['font']) => {
+  const applyEditorFont = useCallback((editorFont: Settings['editorFont']) => {
     const root = document.documentElement;
-    root.style.setProperty('--font-family', `'${font.family}', monospace`);
-    root.style.setProperty('--font-size', `${font.size}px`);
-    root.style.setProperty('--line-height', String(font.lineHeight));
+    root.style.setProperty('--editor-font-family', `'${editorFont.family}', monospace`);
+    root.style.setProperty('--editor-font-size', `${editorFont.size}px`);
+    root.style.setProperty('--editor-line-height', String(editorFont.lineHeight));
 
-    eventBus.emit(Events.FONT_CHANGE, { font });
+    eventBus.emit(Events.FONT_CHANGE, { font: editorFont });
+  }, []);
+
+  const applyUIFontSize = useCallback((size: number) => {
+    const root = document.documentElement;
+    root.style.setProperty('--ui-font-size', `${size}px`);
   }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('litcode:settings');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved) as Settings;
-        setSettings(parsed);
-        applyTheme(parsed.theme);
-        applyFont(parsed.font);
+        const parsed = JSON.parse(saved) as LegacySettings;
+        const migrated = migrateSettings(parsed);
+        setSettings(migrated);
+        applyTheme(migrated.theme);
+        applyEditorFont(migrated.editorFont);
+        applyUIFontSize(migrated.uiFontSize);
       } catch {
         setSettings(DEFAULT_SETTINGS);
         applyTheme(DEFAULT_SETTINGS.theme);
-        applyFont(DEFAULT_SETTINGS.font);
+        applyEditorFont(DEFAULT_SETTINGS.editorFont);
+        applyUIFontSize(DEFAULT_SETTINGS.uiFontSize);
       }
     } else {
       applyTheme(DEFAULT_SETTINGS.theme);
-      applyFont(DEFAULT_SETTINGS.font);
+      applyEditorFont(DEFAULT_SETTINGS.editorFont);
+      applyUIFontSize(DEFAULT_SETTINGS.uiFontSize);
     }
 
     invoke<boolean>('is_cli_installed').then(setCliInstalled);
-  }, [applyTheme, applyFont]);
+  }, [applyTheme, applyEditorFont, applyUIFontSize]);
 
   const saveSettings = useCallback((newSettings: Settings) => {
     setSettings(newSettings);
     localStorage.setItem('litcode:settings', JSON.stringify(newSettings));
     applyTheme(newSettings.theme);
-    applyFont(newSettings.font);
-  }, [applyTheme, applyFont]);
+    applyEditorFont(newSettings.editorFont);
+    applyUIFontSize(newSettings.uiFontSize);
+  }, [applyTheme, applyEditorFont, applyUIFontSize]);
 
   const handleThemeChange = (theme: string) => {
     saveSettings({ ...settings, theme });
   };
 
   const handleFontFamilyChange = (family: string) => {
-    saveSettings({ ...settings, font: { ...settings.font, family } });
+    saveSettings({ ...settings, editorFont: { ...settings.editorFont, family } });
   };
 
-  const handleFontSizeChange = (size: number) => {
-    saveSettings({ ...settings, font: { ...settings.font, size } });
+  const handleEditorFontSizeChange = (size: number) => {
+    saveSettings({ ...settings, editorFont: { ...settings.editorFont, size } });
+  };
+
+  const handleUIFontSizeChange = (size: number) => {
+    saveSettings({ ...settings, uiFontSize: size });
   };
 
   const handleLineHeightChange = (lineHeight: number) => {
-    saveSettings({ ...settings, font: { ...settings.font, lineHeight } });
+    saveSettings({ ...settings, editorFont: { ...settings.editorFont, lineHeight } });
   };
 
   const handleLigaturesChange = (ligatures: boolean) => {
-    saveSettings({ ...settings, font: { ...settings.font, ligatures } });
+    saveSettings({ ...settings, editorFont: { ...settings.editorFont, ligatures } });
   };
 
   const handleInstallCli = async () => {
@@ -158,9 +201,9 @@ export function SettingsPanel() {
           </Select>
         </Section>
 
-        <Section title="Font Family">
+        <Section title="Editor Font">
           <Select
-            value={settings.font.family}
+            value={settings.editorFont.family}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFontFamilyChange(e.target.value)}
           >
             {BUILT_IN_FONTS.map((font) => (
@@ -171,12 +214,22 @@ export function SettingsPanel() {
           </Select>
         </Section>
 
-        <Section title="Font Size">
+        <Section title="Editor Font Size">
           <Slider
             min={10}
             max={24}
-            value={settings.font.size}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFontSizeChange(Number(e.target.value))}
+            value={settings.editorFont.size}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleEditorFontSizeChange(Number(e.target.value))}
+            valueSuffix="px"
+          />
+        </Section>
+
+        <Section title="UI Font Size">
+          <Slider
+            min={11}
+            max={16}
+            value={settings.uiFontSize}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUIFontSizeChange(Number(e.target.value))}
             valueSuffix="px"
           />
         </Section>
@@ -186,14 +239,14 @@ export function SettingsPanel() {
             min={1}
             max={2.5}
             step={0.1}
-            value={settings.font.lineHeight}
+            value={settings.editorFont.lineHeight}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleLineHeightChange(Number(e.target.value))}
           />
         </Section>
 
         <Section>
           <Toggle
-            checked={settings.font.ligatures}
+            checked={settings.editorFont.ligatures}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleLigaturesChange(e.target.checked)}
           >
             Enable Ligatures

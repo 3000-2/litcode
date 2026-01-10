@@ -201,7 +201,7 @@ export function Editor() {
 
   return (
     <div className="h-full w-full relative">
-      <div ref={containerRef} className="h-full w-full [&_.cm-editor]:h-full [&_.cm-scroller]:font-mono-editor [&_.cm-scroller]:text-[length:var(--font-size)] [&_.cm-scroller]:leading-[var(--line-height)]" />
+      <div ref={containerRef} className="h-full w-full [&_.cm-editor]:h-full [&_.cm-scroller]:font-mono-editor [&_.cm-scroller]:text-[length:var(--editor-font-size)] [&_.cm-scroller]:leading-[var(--editor-line-height)]" />
       {!currentPath && (
         <div className="absolute inset-0 flex items-center justify-center bg-primary text-fg-muted text-sm">
           <p>Open a file to start editing</p>

@@ -88,7 +88,7 @@ export interface ThemeConfig {
   };
 }
 
-export interface FontConfig {
+export interface EditorFontConfig {
   family: string;
   size: number;
   lineHeight: number;
@@ -97,6 +97,7 @@ export interface FontConfig {
 
 export interface Settings {
   theme: string;
-  font: FontConfig;
+  editorFont: EditorFontConfig;
+  uiFontSize: number;
   customFonts: string[];
 }
