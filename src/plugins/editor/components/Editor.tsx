@@ -8,6 +8,26 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import { invoke } from '@tauri-apps/api/core';
 import { eventBus, Events, pluginRegistry } from '../../../core';
 
+const baseTheme = EditorView.theme({
+  '&': {
+    height: '100%',
+  },
+  '.cm-scroller': {
+    fontFamily: 'var(--editor-font-family)',
+    fontSize: 'var(--editor-font-size)',
+    lineHeight: 'var(--editor-line-height)',
+  },
+  '.cm-content': {
+    padding: '4px 0',
+  },
+  '.cm-line': {
+    padding: '0 4px',
+  },
+  '.cm-gutters': {
+    paddingLeft: '8px',
+  },
+});
+
 const getLanguageExtension = (filename: string): Extension => {
   const ext = filename.split('.').pop()?.toLowerCase();
   switch (ext) {
@@ -58,6 +78,7 @@ export function Editor() {
     return EditorState.create({
       doc: content,
       extensions: [
+        baseTheme,
         lineNumbers(),
         highlightActiveLineGutter(),
         highlightActiveLine(),
@@ -76,6 +97,7 @@ export function Editor() {
     const state = EditorState.create({
       doc: '',
       extensions: [
+        baseTheme,
         lineNumbers(),
         highlightActiveLineGutter(),
         highlightActiveLine(),
@@ -98,10 +120,9 @@ export function Editor() {
   }, []);
 
   useEffect(() => {
-    const handleFileOpen = async (data: unknown) => {
-      const { path, name } = data as { path: string; name: string };
-      const tabId = `tab-${Date.now()}`;
-      currentTabIdRef.current = tabId;
+  const handleFileOpen = async (data: unknown) => {
+      const { id, path, name } = data as { id: string; path: string; name: string };
+      currentTabIdRef.current = id;
 
       try {
         const content = await invoke<string>('read_file', { path });
@@ -109,7 +130,7 @@ export function Editor() {
         setCurrentPath(path);
 
         if (viewRef.current) {
-          viewRef.current.setState(createEditorState(content, name, tabId));
+          viewRef.current.setState(createEditorState(content, name, id));
         }
 
         pluginRegistry.setCurrentFile({ path, name, isDirectory: false });
@@ -171,6 +192,7 @@ export function Editor() {
           viewRef.current.setState(EditorState.create({
             doc: '',
             extensions: [
+              baseTheme,
               lineNumbers(),
               highlightActiveLineGutter(),
               highlightActiveLine(),
@@ -201,7 +223,7 @@ export function Editor() {
 
   return (
     <div className="h-full w-full relative">
-      <div ref={containerRef} className="h-full w-full [&_.cm-editor]:h-full [&_.cm-scroller]:font-mono-editor [&_.cm-scroller]:text-[length:var(--editor-font-size)] [&_.cm-scroller]:leading-[var(--editor-line-height)]" />
+      <div ref={containerRef} className="h-full w-full [&_.cm-editor]:h-full" />
       {!currentPath && (
         <div className="absolute inset-0 flex items-center justify-center bg-primary text-fg-muted text-sm">
           <p>Open a file to start editing</p>

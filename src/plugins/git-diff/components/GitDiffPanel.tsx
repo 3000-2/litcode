@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { GitBranch } from 'lucide-react';
-import { IconButton, Input } from '../../../components';
+import { IconButton } from '../../../components';
 import { cn } from '../../../lib/utils';
-import { eventBus } from '../../../core';
+import { eventBus, Events } from '../../../core';
 import { DiffViewer } from './DiffViewer';
 
 interface GitFileStatus {
@@ -20,17 +20,18 @@ interface GitStatus {
 }
 
 export function GitDiffPanel() {
-  const [repoPath, setRepoPath] = useState<string>('/Users');
+  const [repoPath, setRepoPath] = useState<string>('');
   const [status, setStatus] = useState<GitStatus | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadStatus = useCallback(async () => {
+  const loadStatus = useCallback(async (path: string) => {
+    if (!path) return;
     setLoading(true);
     setError(null);
     try {
-      const result = await invoke<GitStatus>('git_status', { repoPath });
+      const result = await invoke<GitStatus>('git_status', { repoPath: path });
       setStatus(result);
     } catch (err) {
       setError(String(err));
@@ -38,21 +39,31 @@ export function GitDiffPanel() {
     } finally {
       setLoading(false);
     }
-  }, [repoPath]);
+  }, []);
 
   useEffect(() => {
-    loadStatus();
-  }, [loadStatus]);
-
-  useEffect(() => {
-    const unsubRefresh = eventBus.on('git:refresh', loadStatus);
-    return () => unsubRefresh();
-  }, [loadStatus]);
+    const unsubRefresh = eventBus.on('git:refresh', () => {
+      if (repoPath) loadStatus(repoPath);
+    });
+    const unsubRootChange = eventBus.on('root-path:change', (data) => {
+      const { path } = data as { path: string };
+      setRepoPath(path);
+      loadStatus(path);
+    });
+    const unsubFileSave = eventBus.on(Events.FILE_SAVE, () => {
+      if (repoPath) loadStatus(repoPath);
+    });
+    return () => {
+      unsubRefresh();
+      unsubRootChange();
+      unsubFileSave();
+    };
+  }, [loadStatus, repoPath]);
 
   const handleRevertFile = async (filePath: string) => {
     try {
       await invoke('git_revert_file', { repoPath, filePath });
-      loadStatus();
+      loadStatus(repoPath);
       if (selectedFile === filePath) {
         setSelectedFile(null);
       }
@@ -94,19 +105,8 @@ export function GitDiffPanel() {
       <div className="flex justify-between items-center px-3 py-2 min-h-header border-b border-default">
         <span className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">SOURCE CONTROL</span>
         <div className="flex gap-1">
-          <IconButton icon="refresh" size="sm" onClick={loadStatus} title="Refresh" />
+          <IconButton icon="refresh" size="sm" onClick={() => loadStatus(repoPath)} title="Refresh" />
         </div>
-      </div>
-
-      <div className="px-3 py-2 border-b border-default">
-        <Input
-          value={repoPath}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRepoPath(e.target.value)}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'Enter') loadStatus();
-          }}
-          placeholder="Repository path..."
-        />
       </div>
 
       {status && (
@@ -169,7 +169,7 @@ export function GitDiffPanel() {
           filePath={selectedFile}
           onClose={() => setSelectedFile(null)}
           onRevert={() => {
-            loadStatus();
+            loadStatus(repoPath);
             setSelectedFile(null);
           }}
         />

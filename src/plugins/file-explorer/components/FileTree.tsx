@@ -14,11 +14,10 @@ import type { DirEntry } from '../../../core';
 interface FileTreeProps {
   entries: DirEntry[];
   onFileClick: (entry: DirEntry) => void;
-  onFolderOpen: (path: string) => void;
   level?: number;
 }
 
-export function FileTree({ entries, onFileClick, onFolderOpen, level = 0 }: FileTreeProps) {
+export function FileTree({ entries, onFileClick, level = 0 }: FileTreeProps) {
   return (
     <div className="select-none">
       {entries.map((entry) => (
@@ -26,7 +25,6 @@ export function FileTree({ entries, onFileClick, onFolderOpen, level = 0 }: File
           key={entry.path}
           entry={entry}
           onFileClick={onFileClick}
-          onFolderOpen={onFolderOpen}
           level={level}
         />
       ))}
@@ -37,14 +35,29 @@ export function FileTree({ entries, onFileClick, onFolderOpen, level = 0 }: File
 interface FileTreeItemProps {
   entry: DirEntry;
   onFileClick: (entry: DirEntry) => void;
-  onFolderOpen: (path: string) => void;
   level: number;
 }
 
 const ICON_SIZE = 16;
 const ICON_STROKE = 1.5;
 
-function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemProps) {
+const FILE_ICON_COLORS: Record<string, string> = {
+  folder: '#dcb67a',
+  ts: '#3178c6',
+  tsx: '#3178c6',
+  js: '#f7df1e',
+  jsx: '#f7df1e',
+  mjs: '#f7df1e',
+  py: '#3776ab',
+  go: '#00add8',
+  rs: '#dea584',
+  json: '#cbcb41',
+  md: '#519aba',
+  css: '#563d7c',
+  html: '#e34c26',
+};
+
+function FileTreeItem({ entry, onFileClick, level }: FileTreeItemProps) {
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState<DirEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -68,49 +81,29 @@ function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemP
     }
   };
 
-  const handleDoubleClick = () => {
-    if (entry.isDirectory) {
-      onFolderOpen(entry.path);
-    }
-  };
-
   const getFileIcon = (name: string, isDir: boolean) => {
     if (isDir) {
-      return expanded ? (
-        <FolderOpen size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#dcb67a]" />
-      ) : (
-        <Folder size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#dcb67a]" />
-      );
+      const FolderIcon = expanded ? FolderOpen : Folder;
+      return <FolderIcon size={ICON_SIZE} strokeWidth={ICON_STROKE} color={FILE_ICON_COLORS.folder} />;
     }
 
-    const ext = name.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'ts':
-      case 'tsx':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#3178c6]" />;
-      case 'js':
-      case 'jsx':
-      case 'mjs':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#f7df1e]" />;
-      case 'py':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#3776ab]" />;
-      case 'go':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#00add8]" />;
-      case 'rs':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#dea584]" />;
-      case 'json':
-        return <Braces size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#cbcb41]" />;
-      case 'md':
-        return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#519aba]" />;
-      case 'css':
-      case 'scss':
-      case 'less':
-        return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#563d7c]" />;
-      case 'html':
-        return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-[#e34c26]" />;
-      default:
-        return <File size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-fg-secondary" />;
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    const color = FILE_ICON_COLORS[ext];
+    
+    if (ext === 'json') {
+      return <Braces size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
     }
+    if (ext === 'md') {
+      return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
+    }
+    if (['css', 'scss', 'less'].includes(ext)) {
+      return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} color={FILE_ICON_COLORS.css} />;
+    }
+    if (['ts', 'tsx', 'js', 'jsx', 'mjs', 'py', 'go', 'rs', 'html'].includes(ext)) {
+      return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
+    }
+    
+    return <File size={ICON_SIZE} strokeWidth={ICON_STROKE} className="text-fg-secondary" />;
   };
 
   return (
@@ -119,7 +112,6 @@ function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemP
         className="flex items-center gap-1.5 py-1 px-2 cursor-pointer transition-colors duration-100 hover:bg-hover"
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={handleClick}
-        onDoubleClick={handleDoubleClick}
       >
         <span className="flex items-center justify-center shrink-0 w-4 h-4">
           {getFileIcon(entry.name, entry.isDirectory)}
@@ -132,7 +124,6 @@ function FileTreeItem({ entry, onFileClick, onFolderOpen, level }: FileTreeItemP
         <FileTree
           entries={children}
           onFileClick={onFileClick}
-          onFolderOpen={onFolderOpen}
           level={level + 1}
         />
       )}
