@@ -2,6 +2,7 @@
 
 Minimal IDE for vibe coding
 
+
 ## Features
 
 - **Minimal**: 9.1MB app size (~15x lighter than Electron)

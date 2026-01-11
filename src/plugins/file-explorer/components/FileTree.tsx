@@ -45,16 +45,42 @@ const FILE_ICON_COLORS: Record<string, string> = {
   folder: '#dcb67a',
   ts: '#3178c6',
   tsx: '#3178c6',
+  mts: '#3178c6',
+  cts: '#3178c6',
   js: '#f7df1e',
   jsx: '#f7df1e',
   mjs: '#f7df1e',
+  cjs: '#f7df1e',
   py: '#3776ab',
   go: '#00add8',
   rs: '#dea584',
   json: '#cbcb41',
+  jsonc: '#cbcb41',
   md: '#519aba',
+  mdx: '#519aba',
   css: '#563d7c',
+  scss: '#cf649a',
+  less: '#1d365d',
   html: '#e34c26',
+  htm: '#e34c26',
+  vue: '#41b883',
+  svelte: '#ff3e00',
+  c: '#555555',
+  cpp: '#f34b7d',
+  h: '#555555',
+  hpp: '#f34b7d',
+  java: '#b07219',
+  sql: '#e38c00',
+  yaml: '#cb171e',
+  yml: '#cb171e',
+  xml: '#0060ac',
+  svg: '#ffb13b',
+  sh: '#89e051',
+  bash: '#89e051',
+  zsh: '#89e051',
+  toml: '#9c4221',
+  ini: '#d1dbe0',
+  env: '#ecd53f',
 };
 
 function FileTreeItem({ entry, onFileClick, level }: FileTreeItemProps) {
@@ -90,16 +116,19 @@ function FileTreeItem({ entry, onFileClick, level }: FileTreeItemProps) {
     const ext = name.split('.').pop()?.toLowerCase() || '';
     const color = FILE_ICON_COLORS[ext];
     
-    if (ext === 'json') {
+    if (['json', 'jsonc'].includes(ext)) {
       return <Braces size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
     }
-    if (ext === 'md') {
-      return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
+    if (['md', 'mdx', 'markdown'].includes(ext)) {
+      return <FileText size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color || FILE_ICON_COLORS.md} />;
     }
     if (['css', 'scss', 'less'].includes(ext)) {
-      return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} color={FILE_ICON_COLORS.css} />;
+      return <FileType size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color || FILE_ICON_COLORS.css} />;
     }
-    if (['ts', 'tsx', 'js', 'jsx', 'mjs', 'py', 'go', 'rs', 'html'].includes(ext)) {
+    if (['ts', 'tsx', 'mts', 'cts', 'js', 'jsx', 'mjs', 'cjs', 'py', 'go', 'rs', 'html', 'htm', 'vue', 'svelte', 'c', 'cpp', 'h', 'hpp', 'java', 'sql', 'sh', 'bash', 'zsh'].includes(ext)) {
+      return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
+    }
+    if (['yaml', 'yml', 'xml', 'svg', 'toml', 'ini', 'env'].includes(ext)) {
       return <FileCode size={ICON_SIZE} strokeWidth={ICON_STROKE} color={color} />;
     }
     

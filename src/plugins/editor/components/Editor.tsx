@@ -4,6 +4,19 @@ import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightAc
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
+import { go } from '@codemirror/lang-go';
+import { json } from '@codemirror/lang-json';
+import { markdown } from '@codemirror/lang-markdown';
+import { html } from '@codemirror/lang-html';
+import { css } from '@codemirror/lang-css';
+import { rust } from '@codemirror/lang-rust';
+import { cpp } from '@codemirror/lang-cpp';
+import { java } from '@codemirror/lang-java';
+import { sql } from '@codemirror/lang-sql';
+import { yaml } from '@codemirror/lang-yaml';
+import { xml } from '@codemirror/lang-xml';
+import { StreamLanguage } from '@codemirror/language';
+import { shell } from '@codemirror/legacy-modes/mode/shell';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { invoke } from '@tauri-apps/api/core';
 import { eventBus, Events, pluginRegistry } from '../../../core';
@@ -34,13 +47,71 @@ const getLanguageExtension = (filename: string): Extension => {
     case 'js':
     case 'jsx':
     case 'mjs':
+    case 'cjs':
       return javascript();
     case 'ts':
     case 'tsx':
+    case 'mts':
+    case 'cts':
       return javascript({ typescript: true, jsx: true });
     case 'py':
     case 'pyw':
       return python();
+    case 'go':
+      return go();
+    case 'json':
+    case 'jsonc':
+      return json();
+    case 'md':
+    case 'markdown':
+    case 'mdx':
+      return markdown();
+    case 'html':
+    case 'htm':
+    case 'vue':
+    case 'svelte':
+      return html();
+    case 'css':
+    case 'scss':
+    case 'less':
+      return css();
+    case 'rs':
+      return rust();
+    case 'c':
+    case 'h':
+      return cpp();
+    case 'cpp':
+    case 'cc':
+    case 'cxx':
+    case 'hpp':
+    case 'hxx':
+      return cpp();
+    case 'java':
+      return java();
+    case 'sql':
+      return sql();
+    case 'yaml':
+    case 'yml':
+      return yaml();
+    case 'xml':
+    case 'svg':
+    case 'xsl':
+    case 'xslt':
+      return xml();
+    case 'sh':
+    case 'bash':
+    case 'zsh':
+    case 'fish':
+      return StreamLanguage.define(shell);
+    case 'toml':
+    case 'ini':
+    case 'conf':
+    case 'cfg':
+    case 'env':
+    case 'gitignore':
+    case 'dockerignore':
+    case 'editorconfig':
+      return StreamLanguage.define(shell);
     default:
       return [];
   }
