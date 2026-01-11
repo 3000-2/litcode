@@ -31,14 +31,14 @@
 - [x] CodeMirror 6 기반
 - [x] JavaScript/TypeScript 문법 강조
 - [x] Python 문법 강조
+- [x] Go, Rust, Java, C++, SQL, YAML, XML, HTML, CSS, Markdown, JSON, Shell 등 30+ 언어 지원
 - [x] 다중 탭 지원
 - [x] Cmd+S 저장
 - [x] 변경사항 표시 (dirty indicator)
-- [ ] Go 문법 강조 (미구현)
 - [ ] 자동완성 (미구현 - LSP 필요)
 
 ### 3. Git Diff ✅ 완료
-- [x] 변경된 파일 목록
+- [x] 변경된 파일 목록 (staged, unstaged, untracked 분리)
 - [x] 브랜치 표시
 - [x] Inline diff 뷰어
 - [x] Side-by-side diff 뷰어
@@ -46,7 +46,7 @@
 - [x] 파일 전체 되돌리기
 - [x] Hunk(블록) 단위 되돌리기
 - [x] **라인 단위 되돌리기**
-- [ ] Stage/Unstage UI (백엔드만 구현)
+- [x] Stage/Unstage 기능 (백엔드 + UI)
 
 ### 4. 디버거 🔄 UI만 완료
 - [x] 디버거 패널 UI
@@ -157,11 +157,17 @@
 | Litcode.app | 9.1 MB |
 | Litcode_0.1.0_aarch64.dmg | 3.5 MB |
 
+## 라이선스
+
+| 구성요소 | 라이선스 |
+|----------|----------|
+| Core | Elastic License 2.0 (ELv2) |
+| Plugin SDK (`src/core/`) | MIT |
+
 ## 향후 계획
 
 ### v0.2.0
 - [ ] DAP 디버거 완전 구현
-- [ ] Go 문법 강조
 - [ ] 커스텀 테마/폰트 로딩
 
 ### v0.3.0

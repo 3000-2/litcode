@@ -109,6 +109,31 @@
 - [x] 공통 CSS (components.css)
 - [x] 기존 파일들 리팩터링 (공통 컴포넌트 사용)
 
+### Phase 12: 문법 강조 확장
+- [x] Go, Rust, Java, C++, SQL, YAML, XML, HTML, CSS, Markdown, JSON, Shell 등 30+ 언어 지원
+- [x] 파일 확장자별 언어 자동 감지
+
+### Phase 13: Git Diff 개선
+- [x] Staged, Unstaged, Untracked 파일 분리 표시 (VS Code 스타일)
+- [x] Stage/Unstage UI 버튼 추가
+- [x] Untracked 파일 diff 표시 (전체 파일을 additions으로)
+- [x] git_diff_untracked Rust 커맨드 추가
+
+### Phase 14: 버그 수정 (코드 리뷰)
+- [x] git_revert_hunk / git_revert_lines 파일 손상 버그 수정
+- [x] Editor 빠른 탭 전환 시 race condition 수정 (loadRequestIdRef)
+- [x] TabBar stale closure 버그 수정 (functional setState)
+- [x] DiffViewer untracked/staged 파일에 Discard 버튼 숨김
+- [x] StatusBar 레이아웃 수정 (CSS grid)
+- [x] git_unstage_file 첫 커밋 케이스 처리
+- [x] FileTree 로드 실패 시 에러 표시
+
+### Phase 15: 라이선스 & CLI
+- [x] Elastic License 2.0 (ELv2) 적용
+- [x] 듀얼 라이선스: Core (ELv2), Plugin SDK (MIT)
+- [x] CLI 터미널 detach 수정 (open -a 사용)
+- [x] CLI 설치 경로 변경: /usr/local/bin → ~/.local/bin (권한 문제 해결)
+
 ---
 
 ## 남은 작업 📋
@@ -124,7 +149,6 @@
 - [ ] 디버그 중 라인 하이라이트
 
 #### 에디터 개선
-- [ ] Go 문법 강조 (@codemirror/lang-go 설치 필요)
 - [ ] 검색/바꾸기
 - [ ] 다중 커서
 - [ ] 코드 접기
@@ -136,7 +160,6 @@
 
 #### 기타
 - [ ] 파일 생성/삭제/이름변경 UI
-- [ ] Stage/Unstage UI
 - [ ] 터미널 플러그인
 - [ ] 검색 플러그인
 - [ ] LSP 지원
@@ -280,7 +303,25 @@ src-tauri/target/release/bundle/
 
 ## 변경 이력
 
-### 2024-01-10
+### 2026-01-11
+- 듀얼 라이선스 설정: Core (ELv2), Plugin SDK (MIT)
+- CLI 권한 문제 해결: ~/.local/bin으로 설치 경로 변경
+- CLI 터미널 detach 수정: open -a 사용으로 터미널 즉시 해제
+
+### 2026-01-10
+- 코드 리뷰 버그 수정
+  - git_revert_hunk / git_revert_lines 파일 손상 버그 수정
+  - Editor 빠른 탭 전환 시 race condition 수정
+  - TabBar stale closure 버그 수정
+  - DiffViewer untracked/staged 파일에 Discard 버튼 숨김
+  - StatusBar 레이아웃 수정 (CSS grid)
+  - git_unstage_file 첫 커밋 케이스 처리
+  - FileTree 로드 실패 시 에러 표시
+- AGENTS.md 프로젝트 가이드라인 문서 추가
+- Git diff 개선: staged, unstaged, untracked 파일 분리 표시
+- 30+ 언어 문법 강조 지원 추가
+
+### 2026-01-09
 - 디버거 플러그인 App.tsx 연결 완료
 - 버그 수정 및 코드 품질 개선
   - TabBar stale closure 버그 수정
