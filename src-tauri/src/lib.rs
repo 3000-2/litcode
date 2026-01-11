@@ -4,6 +4,8 @@ use commands::{
     create_dir, file_exists, git_diff, git_diff_untracked, git_revert_file, git_revert_hunk,
     git_revert_lines, git_stage_file, git_status, git_unstage_file, read_dir, read_file,
     remove_path, rename_path, write_file,
+    terminal_spawn, terminal_write, terminal_resize, terminal_kill, init_terminal_state,
+    search_content, search_files,
 };
 use std::env;
 
@@ -102,6 +104,10 @@ fn is_cli_installed() -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            init_terminal_state(app);
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             read_file,
             write_file,
@@ -122,6 +128,12 @@ pub fn run() {
             install_cli,
             uninstall_cli,
             is_cli_installed,
+            terminal_spawn,
+            terminal_write,
+            terminal_resize,
+            terminal_kill,
+            search_content,
+            search_files,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -146,6 +146,25 @@
 - [x] 탐색기 헤더에 새 파일/폴더 툴바 버튼
 - [x] Icon 컴포넌트 확장 (file-plus, folder-plus, pencil)
 
+### Phase 17: 터미널 플러그인
+- [x] portable-pty Rust 크레이트로 PTY 처리
+- [x] Rust 터미널 명령어 (spawn, write, resize, kill)
+- [x] Tauri 이벤트 스트리밍으로 터미널 출력
+- [x] xterm.js 프론트엔드 + FitAddon
+- [x] 다중 터미널 탭 지원
+- [x] 사이드바 터미널 아이콘
+- [x] 키보드 단축키 (Cmd+` 새 터미널, Cmd+K 클리어)
+
+### Phase 18: 검색 플러그인
+- [x] Rust 검색 명령어 (search_content, search_files)
+- [x] 정규식 지원 및 대소문자 구분 옵션
+- [x] 스마트 파일/디렉토리 필터링 (node_modules, .git, 바이너리 파일 제외)
+- [x] 파일별로 그룹화된 검색 결과
+- [x] 클릭하여 특정 라인에서 파일 열기
+- [x] 결과에서 매치 하이라이팅
+- [x] 디바운스 검색 (300ms)
+- [x] 키보드 단축키 (Cmd+Shift+F)
+
 ---
 
 ## 남은 작업 📋
@@ -171,8 +190,6 @@
 - [ ] 추가 내장 테마 (Dracula, Nord, Monokai)
 
 #### 기타
-- [ ] 터미널 플러그인
-- [ ] 검색 플러그인
 - [ ] LSP 지원
 
 ---
@@ -316,6 +333,20 @@ src-tauri/target/release/bundle/
 ## 변경 이력
 
 ### 2026-01-11
+- 검색 플러그인 완성
+  - Rust 백엔드 정규식 지원
+  - 대소문자 구분 및 정규식 검색 옵션
+  - 스마트 필터링 (node_modules, 바이너리 파일 제외)
+  - 파일별 그룹화 및 매치 하이라이팅
+  - 클릭하여 특정 라인에서 열기
+  - Cmd+Shift+F 단축키
+- 터미널 플러그인 완성
+  - portable-pty Rust 백엔드로 크로스 플랫폼 PTY
+  - xterm.js 프론트엔드 + 테마 적용
+  - 다중 터미널 탭 지원
+  - Tauri 이벤트 스트리밍으로 실시간 출력
+  - FitAddon으로 자동 크기 조절
+  - Cmd+` 새 터미널, Cmd+K 클리어
 - 파일 작업 UI 완성
   - ContextMenu 컴포넌트로 우클릭 메뉴 지원
   - 컨텍스트 메뉴 및 툴바 버튼으로 새 파일/폴더 생성

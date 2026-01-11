@@ -146,6 +146,25 @@
 - [x] New File/Folder toolbar buttons in Explorer header
 - [x] Icon component extended (file-plus, folder-plus, pencil)
 
+### Phase 17: Terminal Plugin
+- [x] portable-pty Rust crate for PTY handling
+- [x] Rust terminal commands (spawn, write, resize, kill)
+- [x] Tauri event streaming for terminal output
+- [x] xterm.js frontend with FitAddon
+- [x] Multiple terminal tabs support
+- [x] Terminal icon in sidebar
+- [x] Keyboard shortcuts (Cmd+` for new, Cmd+K for clear)
+
+### Phase 18: Search Plugin
+- [x] Rust search commands (search_content, search_files)
+- [x] Regex support with case sensitivity options
+- [x] Smart file/directory filtering (skips node_modules, .git, binary files)
+- [x] Search results grouped by file
+- [x] Click to open file at specific line
+- [x] Match highlighting in results
+- [x] Debounced search (300ms)
+- [x] Keyboard shortcut (Cmd+Shift+F)
+
 ---
 
 ## Remaining Work 📋
@@ -171,8 +190,6 @@
 - [ ] Additional built-in themes (Dracula, Nord, Monokai)
 
 #### Other
-- [ ] Terminal plugin
-- [ ] Search plugin
 - [ ] LSP support
 
 ---
@@ -316,6 +333,20 @@ src-tauri/target/release/bundle/
 ## Changelog
 
 ### 2026-01-11
+- Search plugin complete
+  - Rust backend with regex support
+  - Case-sensitive and regex search options
+  - Smart filtering (skips node_modules, binary files)
+  - Results grouped by file with match highlighting
+  - Click to open at specific line
+  - Cmd+Shift+F shortcut
+- Terminal plugin complete
+  - Rust backend with portable-pty for cross-platform PTY
+  - xterm.js frontend with proper theming
+  - Multiple terminal tabs support
+  - Tauri event streaming for real-time output
+  - Auto-resize with FitAddon
+  - Cmd+` to open new terminal, Cmd+K to clear
 - File operations UI complete
   - ContextMenu component for right-click menus
   - New File / New Folder via context menu and toolbar buttons

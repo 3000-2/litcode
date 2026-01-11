@@ -6,6 +6,8 @@ import { editorPlugin } from './plugins/editor';
 import { gitDiffPlugin } from './plugins/git-diff';
 import { settingsPlugin } from './plugins/settings';
 import { debuggerPlugin } from './plugins/debugger';
+import { terminalPlugin } from './plugins/terminal';
+import { searchPlugin } from './plugins/search';
 
 import './styles/global.css';
 
@@ -15,10 +17,12 @@ function App() {
   useEffect(() => {
     const initPlugins = async () => {
       pluginLoader.register(fileExplorerPlugin);
+      pluginLoader.register(searchPlugin);
       pluginLoader.register(editorPlugin);
       pluginLoader.register(gitDiffPlugin);
       pluginLoader.register(settingsPlugin);
       pluginLoader.register(debuggerPlugin);
+      pluginLoader.register(terminalPlugin);
 
       await pluginLoader.activateAll();
       setReady(true);

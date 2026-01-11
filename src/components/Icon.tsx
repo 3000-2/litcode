@@ -35,6 +35,8 @@ import {
   Info,
   Loader2,
   Pencil,
+  Terminal,
+  SquareTerminal,
 } from 'lucide-react';
 
 const ICONS = {
@@ -73,6 +75,8 @@ const ICONS = {
   info: Info,
   loader: Loader2,
   pencil: Pencil,
+  terminal: Terminal,
+  'square-terminal': SquareTerminal,
 } as const;
 
 export type IconName = keyof typeof ICONS;

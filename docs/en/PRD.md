@@ -171,11 +171,11 @@
 ### v0.2.0
 - [ ] Complete DAP debugger
 - [ ] Custom theme/font loading
+- [x] Terminal plugin
+- [x] Search plugin
 
 ### v0.3.0
 - [ ] LSP support (autocomplete)
-- [ ] Terminal plugin
-- [ ] Search plugin
 
 ### v1.0.0
 - [ ] Stabilization
