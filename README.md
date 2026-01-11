@@ -51,7 +51,16 @@ litcode /path/to/project     # Open specific folder
 
 Manual installation (if permission issues):
 ```bash
-sudo ln -sf /Applications/Litcode.app/Contents/MacOS/Litcode /usr/local/bin/litcode
+sudo tee /usr/local/bin/litcode << 'EOF'
+#!/bin/bash
+if [ -z "$1" ]; then
+    open -a Litcode
+else
+    [[ "$1" = /* ]] && ABS_PATH="$1" || { [ -d "$1" ] && ABS_PATH="$(cd "$1" && pwd)" || ABS_PATH="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
+    open -a Litcode --args "$ABS_PATH"
+fi
+EOF
+sudo chmod +x /usr/local/bin/litcode
 ```
 
 ## Project Structure

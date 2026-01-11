@@ -6,7 +6,7 @@ use commands::{
     remove_path, rename_path, write_file,
 };
 use std::env;
-use std::os::unix::fs::symlink;
+
 use std::path::Path;
 use std::fs;
 
@@ -17,15 +17,32 @@ fn get_initial_path() -> String {
 
 #[tauri::command]
 fn install_cli() -> Result<String, String> {
-    let app_path = "/Applications/Litcode.app/Contents/MacOS/Litcode";
+    let app_bundle = "/Applications/Litcode.app";
     let cli_path = "/usr/local/bin/litcode";
     
-    if !Path::new(app_path).exists() {
+    if !Path::new(app_bundle).exists() {
         return Err("Litcode.app not found in /Applications. Please move the app there first.".to_string());
     }
     
+    let script = r#"#!/bin/bash
+# Litcode CLI - launches app detached from terminal
+
+if [ -z "$1" ]; then
+    open -a Litcode
+else
+    # Resolve to absolute path
+    if [[ "$1" = /* ]]; then
+        ABS_PATH="$1"
+    else
+        ABS_PATH="$(cd "$(dirname "$1")" 2>/dev/null && pwd)/$(basename "$1")"
+        [ -d "$1" ] && ABS_PATH="$(cd "$1" 2>/dev/null && pwd)"
+    fi
+    open -a Litcode --args "$ABS_PATH"
+fi
+"#;
+    
     if Path::new(cli_path).exists() {
-        fs::remove_file(cli_path).map_err(|e| format!("Failed to remove existing symlink: {}", e))?;
+        fs::remove_file(cli_path).map_err(|e| format!("Failed to remove existing file: {}", e))?;
     }
     
     let parent = Path::new(cli_path).parent().unwrap();
@@ -33,13 +50,18 @@ fn install_cli() -> Result<String, String> {
         fs::create_dir_all(parent).map_err(|e| format!("Failed to create directory: {}", e))?;
     }
     
-    symlink(app_path, cli_path).map_err(|e| {
+    fs::write(cli_path, script).map_err(|e| {
         if e.kind() == std::io::ErrorKind::PermissionDenied {
-            "Permission denied. Run this command in terminal:\nsudo ln -sf /Applications/Litcode.app/Contents/MacOS/Litcode /usr/local/bin/litcode".to_string()
+            format!("Permission denied. Run these commands in terminal:\nsudo tee {} << 'EOF'\n{}EOF\nsudo chmod +x {}", cli_path, script, cli_path)
         } else {
-            format!("Failed to create symlink: {}", e)
+            format!("Failed to write CLI script: {}", e)
         }
     })?;
+    
+    use std::os::unix::fs::PermissionsExt;
+    let mut perms = fs::metadata(cli_path).map_err(|e| format!("Failed to read permissions: {}", e))?.permissions();
+    perms.set_mode(0o755);
+    fs::set_permissions(cli_path, perms).map_err(|e| format!("Failed to set permissions: {}", e))?;
     
     Ok("CLI installed successfully! You can now use 'litcode .' to open directories.".to_string())
 }
@@ -56,7 +78,7 @@ fn uninstall_cli() -> Result<String, String> {
         if e.kind() == std::io::ErrorKind::PermissionDenied {
             "Permission denied. Run this command in terminal:\nsudo rm /usr/local/bin/litcode".to_string()
         } else {
-            format!("Failed to remove symlink: {}", e)
+            format!("Failed to remove CLI: {}", e)
         }
     })?;
     
