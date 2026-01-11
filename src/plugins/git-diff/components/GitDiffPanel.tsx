@@ -10,6 +10,7 @@ interface GitFileStatus {
   path: string;
   status: string;
   staged: boolean;
+  workingTree: boolean;
 }
 
 interface GitStatus {
@@ -19,10 +20,16 @@ interface GitStatus {
   behind: number;
 }
 
+interface SelectedFile {
+  path: string;
+  staged: boolean;
+  isUntracked: boolean;
+}
+
 export function GitDiffPanel() {
   const [repoPath, setRepoPath] = useState<string>('');
   const [status, setStatus] = useState<GitStatus | null>(null);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,11 +67,29 @@ export function GitDiffPanel() {
     };
   }, [loadStatus, repoPath]);
 
+  const handleStageFile = async (filePath: string) => {
+    try {
+      await invoke('git_stage_file', { repoPath, filePath });
+      loadStatus(repoPath);
+    } catch (err) {
+      console.error('Failed to stage file:', err);
+    }
+  };
+
+  const handleUnstageFile = async (filePath: string) => {
+    try {
+      await invoke('git_unstage_file', { repoPath, filePath });
+      loadStatus(repoPath);
+    } catch (err) {
+      console.error('Failed to unstage file:', err);
+    }
+  };
+
   const handleRevertFile = async (filePath: string) => {
     try {
       await invoke('git_revert_file', { repoPath, filePath });
       loadStatus(repoPath);
-      if (selectedFile === filePath) {
+      if (selectedFile?.path === filePath) {
         setSelectedFile(null);
       }
     } catch (err) {
@@ -82,6 +107,8 @@ export function GitDiffPanel() {
         return 'D';
       case 'renamed':
         return 'R';
+      case 'untracked':
+        return 'U';
       default:
         return '?';
     }
@@ -95,9 +122,76 @@ export function GitDiffPanel() {
         return 'text-diff-removed';
       case 'modified':
         return 'text-diff-modified';
+      case 'untracked':
+        return 'text-diff-added';
       default:
         return 'text-fg-secondary';
     }
+  };
+
+  const stagedFiles = status?.files.filter(f => f.staged) || [];
+  const unstagedFiles = status?.files.filter(f => f.workingTree) || [];
+
+  const renderFileItem = (file: GitFileStatus, isStaged: boolean) => {
+    const isSelected = selectedFile?.path === file.path && selectedFile?.staged === isStaged;
+    const isUntracked = file.status === 'untracked';
+    
+    return (
+      <div
+        key={`${file.path}-${isStaged ? 'staged' : 'unstaged'}`}
+        className={cn(
+          'group flex items-center gap-2 py-1 px-3 cursor-pointer transition-colors duration-100 hover:bg-hover',
+          isSelected && 'bg-active'
+        )}
+        onClick={() => setSelectedFile({ path: file.path, staged: isStaged, isUntracked })}
+      >
+        <span className={cn('font-mono-editor text-xs font-semibold w-4 text-center', getStatusColorClass(file.status))}>
+          {getStatusIcon(file.status)}
+        </span>
+        <span className="flex-1 text-sm truncate">
+          {file.path.split('/').pop()}
+        </span>
+        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+          {isStaged ? (
+            <IconButton
+              icon="minus"
+              size="sm"
+              variant="ghost"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                handleUnstageFile(file.path);
+              }}
+              title="Unstage"
+            />
+          ) : (
+            <>
+              <IconButton
+                icon="plus"
+                size="sm"
+                variant="ghost"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleStageFile(file.path);
+                }}
+                title="Stage"
+              />
+              {!isUntracked && (
+                <IconButton
+                  icon="undo"
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    handleRevertFile(file.path);
+                  }}
+                  title="Discard changes"
+                />
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -129,34 +223,23 @@ export function GitDiffPanel() {
               <div className="py-6 px-3 text-center text-sm text-fg-muted">No changes</div>
             ) : (
               <div className="py-1">
-                {status.files.map((file) => (
-                  <div
-                    key={file.path}
-                    className={cn(
-                      'group flex items-center gap-2 py-1.5 px-3 cursor-pointer transition-colors duration-100 hover:bg-hover',
-                      selectedFile === file.path && 'bg-active'
-                    )}
-                    onClick={() => setSelectedFile(file.path)}
-                  >
-                    <span className={cn('font-mono-editor text-sm font-semibold w-4 text-center', getStatusColorClass(file.status))}>
-                      {getStatusIcon(file.status)}
-                    </span>
-                    <span className="flex-1 text-base truncate">
-                      {file.path.split('/').pop()}
-                    </span>
-                    <IconButton
-                      icon="undo"
-                      size="sm"
-                      variant="ghost"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-100"
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        handleRevertFile(file.path);
-                      }}
-                      title="Discard changes"
-                    />
+                {stagedFiles.length > 0 && (
+                  <div className="mb-2">
+                    <div className="px-3 py-1.5 text-xs font-semibold text-fg-secondary uppercase tracking-wide">
+                      Staged Changes ({stagedFiles.length})
+                    </div>
+                    {stagedFiles.map((file) => renderFileItem(file, true))}
                   </div>
-                ))}
+                )}
+                
+                {unstagedFiles.length > 0 && (
+                  <div>
+                    <div className="px-3 py-1.5 text-xs font-semibold text-fg-secondary uppercase tracking-wide">
+                      Changes ({unstagedFiles.length})
+                    </div>
+                    {unstagedFiles.map((file) => renderFileItem(file, false))}
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -166,7 +249,9 @@ export function GitDiffPanel() {
       {selectedFile && (
         <DiffViewer
           repoPath={repoPath}
-          filePath={selectedFile}
+          filePath={selectedFile.path}
+          staged={selectedFile.staged}
+          isUntracked={selectedFile.isUntracked}
           onClose={() => setSelectedFile(null)}
           onRevert={() => {
             loadStatus(repoPath);

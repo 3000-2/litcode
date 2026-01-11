@@ -1,9 +1,9 @@
 mod commands;
 
 use commands::{
-    create_dir, file_exists, git_diff, git_revert_file, git_revert_hunk, git_revert_lines,
-    git_stage_file, git_status, git_unstage_file, read_dir, read_file, remove_path, rename_path,
-    write_file,
+    create_dir, file_exists, git_diff, git_diff_untracked, git_revert_file, git_revert_hunk,
+    git_revert_lines, git_stage_file, git_status, git_unstage_file, read_dir, read_file,
+    remove_path, rename_path, write_file,
 };
 use std::env;
 use std::os::unix::fs::symlink;
@@ -82,6 +82,7 @@ pub fn run() {
             rename_path,
             git_status,
             git_diff,
+            git_diff_untracked,
             git_revert_file,
             git_revert_hunk,
             git_revert_lines,

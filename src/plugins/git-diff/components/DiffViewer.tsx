@@ -26,11 +26,13 @@ interface GitDiff {
 interface DiffViewerProps {
   repoPath: string;
   filePath: string;
+  staged: boolean;
+  isUntracked: boolean;
   onClose: () => void;
   onRevert: () => void;
 }
 
-export function DiffViewer({ repoPath, filePath, onClose, onRevert }: DiffViewerProps) {
+export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, onRevert }: DiffViewerProps) {
   const [diff, setDiff] = useState<GitDiff | null>(null);
   const [viewMode, setViewMode] = useState<'inline' | 'side-by-side'>('inline');
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,12 @@ export function DiffViewer({ repoPath, filePath, onClose, onRevert }: DiffViewer
       setLoading(true);
       setError(null);
       try {
-        const result = await invoke<GitDiff>('git_diff', { repoPath, filePath });
+        let result: GitDiff;
+        if (isUntracked) {
+          result = await invoke<GitDiff>('git_diff_untracked', { repoPath, filePath });
+        } else {
+          result = await invoke<GitDiff>('git_diff', { repoPath, filePath, staged });
+        }
         setDiff(result);
       } catch (err) {
         setError(String(err));
@@ -51,7 +58,7 @@ export function DiffViewer({ repoPath, filePath, onClose, onRevert }: DiffViewer
     };
 
     loadDiff();
-  }, [repoPath, filePath]);
+  }, [repoPath, filePath, staged, isUntracked]);
 
   const handleRevertHunk = async (hunkIndex: number) => {
     try {

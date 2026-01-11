@@ -1,4 +1,4 @@
-use git2::{DiffOptions, Repository, Status, StatusOptions};
+use git2::{DiffOptions, Repository, StatusOptions};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -9,11 +9,13 @@ pub struct GitStatus {
     pub behind: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GitFileStatus {
     pub path: String,
     pub status: String,
     pub staged: bool,
+    #[serde(rename = "workingTree")]
+    pub working_tree: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,20 +48,6 @@ pub struct GitDiffLine {
     pub new_line_number: Option<u32>,
 }
 
-fn status_to_string(status: Status) -> String {
-    if status.is_index_new() || status.is_wt_new() {
-        "added".to_string()
-    } else if status.is_index_modified() || status.is_wt_modified() {
-        "modified".to_string()
-    } else if status.is_index_deleted() || status.is_wt_deleted() {
-        "deleted".to_string()
-    } else if status.is_index_renamed() || status.is_wt_renamed() {
-        "renamed".to_string()
-    } else {
-        "untracked".to_string()
-    }
-}
-
 #[tauri::command]
 pub fn git_status(repo_path: &str) -> Result<GitStatus, String> {
     let repo = Repository::open(repo_path).map_err(|e| e.to_string())?;
@@ -78,23 +66,65 @@ pub fn git_status(repo_path: &str) -> Result<GitStatus, String> {
 
     let statuses = repo.statuses(Some(&mut opts)).map_err(|e| e.to_string())?;
 
-    let files: Vec<GitFileStatus> = statuses
-        .iter()
-        .filter_map(|entry| {
-            let path = entry.path()?.to_string();
-            let status = entry.status();
-            let staged = status.is_index_new()
-                || status.is_index_modified()
-                || status.is_index_deleted()
-                || status.is_index_renamed();
-
-            Some(GitFileStatus {
-                path,
-                status: status_to_string(status),
-                staged,
-            })
-        })
-        .collect();
+    let mut files: Vec<GitFileStatus> = Vec::new();
+    
+    for entry in statuses.iter() {
+        let path = match entry.path() {
+            Some(p) => p.to_string(),
+            None => continue,
+        };
+        let status = entry.status();
+        
+        let has_staged = status.is_index_new()
+            || status.is_index_modified()
+            || status.is_index_deleted()
+            || status.is_index_renamed();
+        
+        let has_unstaged = status.is_wt_new()
+            || status.is_wt_modified()
+            || status.is_wt_deleted()
+            || status.is_wt_renamed();
+        
+        if has_staged {
+            let staged_status = if status.is_index_new() {
+                "added"
+            } else if status.is_index_modified() {
+                "modified"
+            } else if status.is_index_deleted() {
+                "deleted"
+            } else if status.is_index_renamed() {
+                "renamed"
+            } else {
+                "modified"
+            };
+            files.push(GitFileStatus {
+                path: path.clone(),
+                status: staged_status.to_string(),
+                staged: true,
+                working_tree: false,
+            });
+        }
+        
+        if has_unstaged {
+            let unstaged_status = if status.is_wt_new() {
+                "untracked"
+            } else if status.is_wt_modified() {
+                "modified"
+            } else if status.is_wt_deleted() {
+                "deleted"
+            } else if status.is_wt_renamed() {
+                "renamed"
+            } else {
+                "modified"
+            };
+            files.push(GitFileStatus {
+                path: path.clone(),
+                status: unstaged_status.to_string(),
+                staged: false,
+                working_tree: true,
+            });
+        }
+    }
 
     Ok(GitStatus {
         branch,
@@ -105,15 +135,21 @@ pub fn git_status(repo_path: &str) -> Result<GitStatus, String> {
 }
 
 #[tauri::command]
-pub fn git_diff(repo_path: &str, file_path: &str) -> Result<GitDiff, String> {
+pub fn git_diff(repo_path: &str, file_path: &str, staged: bool) -> Result<GitDiff, String> {
     let repo = Repository::open(repo_path).map_err(|e| e.to_string())?;
 
     let mut diff_opts = DiffOptions::new();
     diff_opts.pathspec(file_path);
 
-    let diff = repo
-        .diff_index_to_workdir(None, Some(&mut diff_opts))
-        .map_err(|e| e.to_string())?;
+    let diff = if staged {
+        let head = repo.head().ok();
+        let tree = head.as_ref().and_then(|h| h.peel_to_tree().ok());
+        repo.diff_tree_to_index(tree.as_ref(), None, Some(&mut diff_opts))
+            .map_err(|e| e.to_string())?
+    } else {
+        repo.diff_index_to_workdir(None, Some(&mut diff_opts))
+            .map_err(|e| e.to_string())?
+    };
 
     let mut hunks: Vec<GitHunk> = Vec::new();
     let mut current_lines: Vec<GitDiffLine> = Vec::new();
@@ -192,7 +228,7 @@ pub fn git_revert_file(repo_path: &str, file_path: &str) -> Result<(), String> {
 
 #[tauri::command]
 pub fn git_revert_hunk(repo_path: &str, file_path: &str, hunk_index: usize) -> Result<(), String> {
-    let diff = git_diff(repo_path, file_path)?;
+    let diff = git_diff(repo_path, file_path, false)?;
     
     if hunk_index >= diff.hunks.len() {
         return Err("Hunk index out of bounds".to_string());
@@ -238,7 +274,7 @@ pub fn git_revert_lines(
     start_line: u32,
     end_line: u32,
 ) -> Result<(), String> {
-    let diff = git_diff(repo_path, file_path)?;
+    let diff = git_diff(repo_path, file_path, false)?;
     let full_path = std::path::Path::new(repo_path).join(file_path);
     let original_content = std::fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
     let mut lines: Vec<String> = original_content.lines().map(|s| s.to_string()).collect();
@@ -270,6 +306,42 @@ pub fn git_revert_lines(
     std::fs::write(&full_path, result).map_err(|e| e.to_string())?;
 
     Ok(())
+}
+
+#[tauri::command]
+pub fn git_diff_untracked(repo_path: &str, file_path: &str) -> Result<GitDiff, String> {
+    let full_path = std::path::Path::new(repo_path).join(file_path);
+    let content = std::fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
+    let file_lines: Vec<&str> = content.lines().collect();
+    let line_count = file_lines.len() as u32;
+    
+    let lines: Vec<GitDiffLine> = file_lines
+        .iter()
+        .enumerate()
+        .map(|(i, line)| GitDiffLine {
+            line_type: "add".to_string(),
+            content: line.to_string(),
+            old_line_number: None,
+            new_line_number: Some((i + 1) as u32),
+        })
+        .collect();
+    
+    let hunks = if lines.is_empty() {
+        vec![]
+    } else {
+        vec![GitHunk {
+            old_start: 0,
+            old_lines: 0,
+            new_start: 1,
+            new_lines: line_count,
+            lines,
+        }]
+    };
+    
+    Ok(GitDiff {
+        path: file_path.to_string(),
+        hunks,
+    })
 }
 
 #[tauri::command]
