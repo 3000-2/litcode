@@ -1,98 +1,100 @@
 # Litcode PRD (Product Requirements Document)
 
-## 개요
+[한국어](PRD.ko.md) | **English**
 
-**제품명**: Litcode  
-**버전**: 0.1.0  
-**목표**: 바이브 코딩에 최적화된 미니멀 IDE
+## Overview
 
-## 원칙
+**Product**: Litcode  
+**Version**: 0.1.0  
+**Goal**: Minimal IDE optimized for vibe coding
 
-1. **Minimal First** - 핵심 기능만, 불필요한 기능 배제
-2. **Extensible** - 플러그인으로 기능 확장 가능한 구조
+## Principles
 
-## 타겟 사용자
+1. **Minimal First** - Core features only, no bloat
+2. **Extensible** - Plugin architecture for feature expansion
 
-- AI 코딩 어시스턴트와 함께 작업하는 개발자
-- VS Code, Cursor가 너무 무겁다고 느끼는 개발자
-- 심플한 워크플로우를 선호하는 개발자
+## Target Users
 
-## 핵심 기능 요구사항
+- Developers working with AI coding assistants
+- Developers who find VS Code/Cursor too heavy
+- Developers who prefer simple workflows
 
-### 1. 파일 브라우저 ✅ 완료
-- [x] 디렉토리 트리 구조 표시
-- [x] 파일 클릭으로 에디터에서 열기
-- [x] 폴더 접기/펼치기
-- [x] 경로 직접 입력
-- [x] 새로고침 버튼
-- [ ] 파일 생성/삭제/이름변경 (미구현)
+## Core Feature Requirements
 
-### 2. 에디터 ✅ 완료
-- [x] CodeMirror 6 기반
-- [x] JavaScript/TypeScript 문법 강조
-- [x] Python 문법 강조
-- [x] Go, Rust, Java, C++, SQL, YAML, XML, HTML, CSS, Markdown, JSON, Shell 등 30+ 언어 지원
-- [x] 다중 탭 지원
-- [x] Cmd+S 저장
-- [x] 변경사항 표시 (dirty indicator)
-- [ ] 자동완성 (미구현 - LSP 필요)
+### 1. File Browser ✅ Complete
+- [x] Directory tree display
+- [x] Click to open files in editor
+- [x] Folder expand/collapse
+- [x] Direct path input
+- [x] Refresh button
+- [ ] File create/delete/rename (not implemented)
 
-### 3. Git Diff ✅ 완료
-- [x] 변경된 파일 목록 (staged, unstaged, untracked 분리)
-- [x] 브랜치 표시
-- [x] Inline diff 뷰어
-- [x] Side-by-side diff 뷰어
-- [x] Inline ↔ Side-by-side 토글
-- [x] 파일 전체 되돌리기
-- [x] Hunk(블록) 단위 되돌리기
-- [x] **라인 단위 되돌리기**
-- [x] Stage/Unstage 기능 (백엔드 + UI)
+### 2. Editor ✅ Complete
+- [x] CodeMirror 6 based
+- [x] JavaScript/TypeScript syntax highlighting
+- [x] Python syntax highlighting
+- [x] 30+ languages: Go, Rust, Java, C++, SQL, YAML, XML, HTML, CSS, Markdown, JSON, Shell, etc.
+- [x] Multi-tab support
+- [x] Cmd+S save
+- [x] Dirty indicator
+- [ ] Autocomplete (not implemented - requires LSP)
 
-### 4. 디버거 🔄 UI만 완료
-- [x] 디버거 패널 UI
-- [x] 브레이크포인트 목록
-- [x] 변수 패널
-- [x] 콜스택 패널
-- [x] 디버그 컨트롤 버튼 (Start/Stop/Step)
-- [x] 언어 선택 (Node.js/Python/Go)
-- [ ] **DAP 프로토콜 연동** (미구현)
-- [ ] 실제 디버그 세션 (미구현)
-- [ ] 에디터 브레이크포인트 gutter (미구현)
+### 3. Git Diff ✅ Complete
+- [x] Changed file list (staged, unstaged, untracked separated)
+- [x] Branch display
+- [x] Inline diff viewer
+- [x] Side-by-side diff viewer
+- [x] Inline ↔ Side-by-side toggle
+- [x] Revert entire file
+- [x] Revert by hunk
+- [x] **Revert by line**
+- [x] Stage/Unstage (backend + UI)
 
-### 5. 테마 & 폰트 ✅ 완료
-- [x] Dark 테마
-- [x] Light 테마
-- [x] 테마 전환
-- [x] 폰트 선택 (5종)
-- [x] 폰트 크기 조절
-- [x] 줄간격 조절
-- [x] 리가쳐 on/off
-- [x] 커스텀 테마 경로 안내 (~/.litcode/themes/)
-- [x] 커스텀 폰트 경로 안내 (~/.litcode/fonts/)
-- [ ] 커스텀 테마 로딩 로직 (미구현)
-- [ ] 커스텀 폰트 로딩 로직 (미구현)
+### 4. Debugger 🔄 UI Only
+- [x] Debugger panel UI
+- [x] Breakpoint list
+- [x] Variables panel
+- [x] Call stack panel
+- [x] Debug controls (Start/Stop/Step)
+- [x] Language selection (Node.js/Python/Go)
+- [ ] **DAP protocol integration** (not implemented)
+- [ ] Actual debug sessions (not implemented)
+- [ ] Editor breakpoint gutter (not implemented)
 
-### 6. UI 레이아웃 ✅ 완료
-- [x] VS Code 스타일 레이아웃
-- [x] 사이드바 접기/펼치기
-- [x] 탭바
-- [x] 상태바
-- [x] 반응형 에디터 영역
+### 5. Themes & Fonts ✅ Complete
+- [x] Dark theme
+- [x] Light theme
+- [x] Theme switching
+- [x] Font selection (5 fonts)
+- [x] Font size adjustment
+- [x] Line height adjustment
+- [x] Ligatures on/off
+- [x] Custom theme path guide (~/.litcode/themes/)
+- [x] Custom font path guide (~/.litcode/fonts/)
+- [ ] Custom theme loading logic (not implemented)
+- [ ] Custom font loading logic (not implemented)
 
-## 기술 스택
+### 6. UI Layout ✅ Complete
+- [x] VS Code style layout
+- [x] Sidebar collapse/expand
+- [x] Tab bar
+- [x] Status bar
+- [x] Responsive editor area
 
-| 구성요소 | 선택 | 이유 |
-|----------|------|------|
-| 프레임워크 | Tauri 2 | Electron보다 ~15배 가벼움 |
-| 프론트엔드 | React 19 | 생태계, 익숙함 |
-| 에디터 | CodeMirror 6 | Monaco보다 가벼움, 확장성 |
-| 백엔드 | Rust | Tauri 기본, 성능 |
-| Git | git2-rs | 네이티브 libgit2 바인딩 |
-| 번들러 | Vite | 빠른 HMR |
+## Tech Stack
 
-## 아키텍처
+| Component | Choice | Reason |
+|-----------|--------|--------|
+| Framework | Tauri 2 | ~15x lighter than Electron |
+| Frontend | React 19 | Ecosystem, familiarity |
+| Editor | CodeMirror 6 | Lighter than Monaco, extensible |
+| Backend | Rust | Tauri default, performance |
+| Git | git2-rs | Native libgit2 bindings |
+| Bundler | Vite | Fast HMR |
 
-### 플러그인 시스템
+## Architecture
+
+### Plugin System
 
 ```
 ┌─────────────────────────────────────┐
@@ -115,67 +117,67 @@
 └─────────────────────────────────────┘
 ```
 
-### Rust 커맨드
+### Rust Commands
 
-| 커맨드 | 설명 | 상태 |
-|--------|------|------|
-| read_file | 파일 읽기 | ✅ |
-| write_file | 파일 쓰기 | ✅ |
-| read_dir | 디렉토리 읽기 | ✅ |
-| file_exists | 파일 존재 확인 | ✅ |
-| create_dir | 디렉토리 생성 | ✅ |
-| remove_path | 파일/디렉토리 삭제 | ✅ |
-| rename_path | 이름 변경 | ✅ |
-| git_status | Git 상태 | ✅ |
+| Command | Description | Status |
+|---------|-------------|--------|
+| read_file | Read file | ✅ |
+| write_file | Write file | ✅ |
+| read_dir | Read directory | ✅ |
+| file_exists | Check file exists | ✅ |
+| create_dir | Create directory | ✅ |
+| remove_path | Delete file/directory | ✅ |
+| rename_path | Rename | ✅ |
+| git_status | Git status | ✅ |
 | git_diff | Git diff | ✅ |
-| git_revert_file | 파일 되돌리기 | ✅ |
-| git_revert_hunk | Hunk 되돌리기 | ✅ |
-| git_revert_lines | 라인 되돌리기 | ✅ |
-| git_stage_file | 파일 스테이징 | ✅ |
-| git_unstage_file | 스테이징 취소 | ✅ |
+| git_revert_file | Revert file | ✅ |
+| git_revert_hunk | Revert hunk | ✅ |
+| git_revert_lines | Revert lines | ✅ |
+| git_stage_file | Stage file | ✅ |
+| git_unstage_file | Unstage file | ✅ |
 
-## 일정
+## Timeline
 
-| Phase | 내용 | 예상 기간 | 상태 |
-|-------|------|----------|------|
-| 0 | 프로젝트 셋업 + 플러그인 시스템 | 2일 | ✅ 완료 |
-| 1 | 기본 레이아웃 | 2일 | ✅ 완료 |
-| 2 | 파일 브라우저 | 2일 | ✅ 완료 |
-| 3 | 에디터 (CodeMirror) | 3일 | ✅ 완료 |
-| 4 | Git Diff | 5일 | ✅ 완료 |
-| 5 | 디버거 (DAP) | 7일 | 🔄 UI만 완료 |
-| 6 | 테마 & 폰트 | 2일 | ✅ 완료 |
-| 7 | 빌드 & 배포 | 1일 | ✅ 완료 |
+| Phase | Content | Estimated | Status |
+|-------|---------|-----------|--------|
+| 0 | Project setup + Plugin system | 2 days | ✅ Complete |
+| 1 | Basic layout | 2 days | ✅ Complete |
+| 2 | File browser | 2 days | ✅ Complete |
+| 3 | Editor (CodeMirror) | 3 days | ✅ Complete |
+| 4 | Git Diff | 5 days | ✅ Complete |
+| 5 | Debugger (DAP) | 7 days | 🔄 UI only |
+| 6 | Themes & Fonts | 2 days | ✅ Complete |
+| 7 | Build & Deploy | 1 day | ✅ Complete |
 
-**총 예상**: 24일  
-**실제 소요**: 1일 (MVP)
+**Total estimated**: 24 days  
+**Actual**: 1 day (MVP)
 
-## 빌드 결과
+## Build Output
 
-| 파일 | 크기 |
+| File | Size |
 |------|------|
 | Litcode.app | 9.1 MB |
 | Litcode_0.1.0_aarch64.dmg | 3.5 MB |
 
-## 라이선스
+## License
 
-| 구성요소 | 라이선스 |
-|----------|----------|
+| Component | License |
+|-----------|---------|
 | Core | Elastic License 2.0 (ELv2) |
 | Plugin SDK (`src/core/`) | MIT |
 
-## 향후 계획
+## Roadmap
 
 ### v0.2.0
-- [ ] DAP 디버거 완전 구현
-- [ ] 커스텀 테마/폰트 로딩
+- [ ] Complete DAP debugger
+- [ ] Custom theme/font loading
 
 ### v0.3.0
-- [ ] LSP 지원 (자동완성)
-- [ ] 터미널 플러그인
-- [ ] 검색 플러그인
+- [ ] LSP support (autocomplete)
+- [ ] Terminal plugin
+- [ ] Search plugin
 
 ### v1.0.0
-- [ ] 안정화
-- [ ] 문서화
-- [ ] 커뮤니티 플러그인 지원
+- [ ] Stabilization
+- [ ] Documentation
+- [ ] Community plugin support
