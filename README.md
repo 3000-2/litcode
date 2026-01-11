@@ -153,4 +153,4 @@ Reusable UI components in `src/components/`:
 
 ## License
 
-MIT
+[Elastic License 2.0 (ELv2)](LICENSE) - Free to use, modify, and distribute. Cannot be offered as a hosted/managed service.
