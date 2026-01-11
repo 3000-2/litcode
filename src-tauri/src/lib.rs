@@ -18,76 +18,84 @@ fn get_initial_path() -> String {
 #[tauri::command]
 fn install_cli() -> Result<String, String> {
     let app_bundle = "/Applications/Litcode.app";
-    let cli_path = "/usr/local/bin/litcode";
+    let home = env::var("HOME").map_err(|_| "Could not determine home directory")?;
+    let cli_dir = format!("{}/.local/bin", home);
+    let cli_path = format!("{}/litcode", cli_dir);
     
     if !Path::new(app_bundle).exists() {
         return Err("Litcode.app not found in /Applications. Please move the app there first.".to_string());
     }
     
     let script = r#"#!/bin/bash
-# Litcode CLI - launches app detached from terminal
-
 if [ -z "$1" ]; then
     open -a Litcode
 else
-    # Resolve to absolute path
-    if [[ "$1" = /* ]]; then
-        ABS_PATH="$1"
-    else
-        ABS_PATH="$(cd "$(dirname "$1")" 2>/dev/null && pwd)/$(basename "$1")"
-        [ -d "$1" ] && ABS_PATH="$(cd "$1" 2>/dev/null && pwd)"
-    fi
+    [[ "$1" = /* ]] && ABS_PATH="$1" || { [ -d "$1" ] && ABS_PATH="$(cd "$1" 2>/dev/null && pwd)" || ABS_PATH="$(cd "$(dirname "$1")" 2>/dev/null && pwd)/$(basename "$1")"; }
     open -a Litcode --args "$ABS_PATH"
 fi
 "#;
     
-    if Path::new(cli_path).exists() {
-        fs::remove_file(cli_path).map_err(|e| format!("Failed to remove existing file: {}", e))?;
+    if !Path::new(&cli_dir).exists() {
+        fs::create_dir_all(&cli_dir).map_err(|e| format!("Failed to create ~/.local/bin: {}", e))?;
     }
     
-    let parent = Path::new(cli_path).parent().unwrap();
-    if !parent.exists() {
-        fs::create_dir_all(parent).map_err(|e| format!("Failed to create directory: {}", e))?;
+    if Path::new(&cli_path).exists() {
+        fs::remove_file(&cli_path).map_err(|e| format!("Failed to remove existing file: {}", e))?;
     }
     
-    fs::write(cli_path, script).map_err(|e| {
-        if e.kind() == std::io::ErrorKind::PermissionDenied {
-            format!("Permission denied. Run these commands in terminal:\nsudo tee {} << 'EOF'\n{}EOF\nsudo chmod +x {}", cli_path, script, cli_path)
-        } else {
-            format!("Failed to write CLI script: {}", e)
-        }
-    })?;
+    fs::write(&cli_path, script).map_err(|e| format!("Failed to write CLI script: {}", e))?;
     
     use std::os::unix::fs::PermissionsExt;
-    let mut perms = fs::metadata(cli_path).map_err(|e| format!("Failed to read permissions: {}", e))?.permissions();
+    let mut perms = fs::metadata(&cli_path).map_err(|e| format!("Failed to read permissions: {}", e))?.permissions();
     perms.set_mode(0o755);
-    fs::set_permissions(cli_path, perms).map_err(|e| format!("Failed to set permissions: {}", e))?;
+    fs::set_permissions(&cli_path, perms).map_err(|e| format!("Failed to set permissions: {}", e))?;
+    
+    let path_env = env::var("PATH").unwrap_or_default();
+    if !path_env.contains(&cli_dir) {
+        return Ok(format!("CLI installed to ~/.local/bin/litcode\n\nAdd to PATH by running:\necho 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.zshrc && source ~/.zshrc"));
+    }
     
     Ok("CLI installed successfully! You can now use 'litcode .' to open directories.".to_string())
 }
 
 #[tauri::command]
 fn uninstall_cli() -> Result<String, String> {
-    let cli_path = "/usr/local/bin/litcode";
+    let home = env::var("HOME").map_err(|_| "Could not determine home directory")?;
+    let cli_path = format!("{}/.local/bin/litcode", home);
+    let legacy_path = "/usr/local/bin/litcode";
     
-    if !Path::new(cli_path).exists() {
-        return Ok("CLI is not installed.".to_string());
+    let mut removed = false;
+    
+    if Path::new(&cli_path).exists() {
+        fs::remove_file(&cli_path).map_err(|e| format!("Failed to remove CLI: {}", e))?;
+        removed = true;
     }
     
-    fs::remove_file(cli_path).map_err(|e| {
-        if e.kind() == std::io::ErrorKind::PermissionDenied {
-            "Permission denied. Run this command in terminal:\nsudo rm /usr/local/bin/litcode".to_string()
-        } else {
-            format!("Failed to remove CLI: {}", e)
+    if Path::new(legacy_path).exists() {
+        match fs::remove_file(legacy_path) {
+            Ok(_) => removed = true,
+            Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {
+                if removed {
+                    return Ok("CLI uninstalled from ~/.local/bin.\nNote: Legacy install at /usr/local/bin/litcode requires: sudo rm /usr/local/bin/litcode".to_string());
+                }
+                return Err("Permission denied. Run: sudo rm /usr/local/bin/litcode".to_string());
+            }
+            Err(e) => return Err(format!("Failed to remove legacy CLI: {}", e)),
         }
-    })?;
+    }
+    
+    if !removed {
+        return Ok("CLI is not installed.".to_string());
+    }
     
     Ok("CLI uninstalled successfully.".to_string())
 }
 
 #[tauri::command]
 fn is_cli_installed() -> bool {
-    Path::new("/usr/local/bin/litcode").exists()
+    let home = env::var("HOME").unwrap_or_default();
+    let cli_path = format!("{}/.local/bin/litcode", home);
+    Path::new(&cli_path).exists() || Path::new("/usr/local/bin/litcode").exists()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
