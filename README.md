@@ -162,4 +162,11 @@ Reusable UI components in `src/components/`:
 
 ## License
 
-[Elastic License 2.0 (ELv2)](LICENSE) - Free to use, modify, and distribute. Cannot be offered as a hosted/managed service.
+Dual licensed:
+
+| Component | License | Description |
+|-----------|---------|-------------|
+| **Core** | [ELv2](LICENSE-ELv2) | Free to use/modify. Cannot offer as hosted service. |
+| **Plugin SDK** | [MIT](LICENSE-MIT) | `src/core/` - Create plugins under any license. |
+
+See [LICENSE](LICENSE) for details.
