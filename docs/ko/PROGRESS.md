@@ -296,7 +296,7 @@ src-tauri/target/release/bundle/
    open src-tauri/target/release/bundle/macos/Litcode.app
    ```
 
-3. **개발 모드** (수정하면서 테스트)
+3. **개발 모드**
    ```bash
    pnpm run tauri dev
    ```

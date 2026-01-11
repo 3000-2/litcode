@@ -1,5 +1,7 @@
 # Litcode
 
+**English** | [한국어](docs/ko/README.md)
+
 Minimal IDE for vibe coding
 
 ## Features
@@ -24,14 +26,14 @@ Minimal IDE for vibe coding
 
 ```bash
 cd litcode
-npm install
-npm run tauri dev
+pnpm install
+pnpm run tauri dev
 ```
 
 ### Production Build
 
 ```bash
-npm run tauri build
+pnpm run tauri build
 ```
 
 Build outputs:
@@ -91,8 +93,7 @@ litcode/
 - Collapse/expand directories
 
 ### Editor (CodeMirror)
-- JavaScript/TypeScript syntax highlighting
-- Python syntax highlighting
+- 30+ language syntax highlighting
 - Multi-tab support
 - Cmd+S save
 
@@ -101,6 +102,7 @@ litcode/
 - Revert entire file
 - Revert by hunk
 - Revert by line
+- Stage/Unstage files
 
 ### Settings
 - Theme: Dark / Light
@@ -132,24 +134,10 @@ litcode/
 | F11 | Step Into |
 | Shift+F11 | Step Out |
 
-## Components
+## Documentation
 
-Reusable UI components in `src/components/`:
-
-| Component | Description |
-|-----------|-------------|
-| `Icon` | Lucide icon wrapper |
-| `IconButton` | Icon-only button |
-| `Button` | General button (primary/secondary/danger/ghost) |
-| `Input` | Text input with optional icon |
-| `Select` | Dropdown select |
-| `Toggle` | Toggle switch with animation |
-| `Slider` | Range slider |
-| `Checkbox` | Checkbox |
-| `Radio` | Radio button/group |
-| `Panel` | Panel with header |
-| `Section` | Settings section |
-| `EmptyState` | Empty state message |
+- [PRD](docs/en/PRD.md) - Product Requirements Document
+- [Progress](docs/en/PROGRESS.md) - Development Progress
 
 ## License
 
