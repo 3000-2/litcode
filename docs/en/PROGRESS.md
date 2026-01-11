@@ -136,6 +136,16 @@
 - [x] CLI terminal detach fix (using open -a)
 - [x] CLI install path changed: /usr/local/bin → ~/.local/bin (permission fix)
 
+### Phase 16: File Operations UI
+- [x] ContextMenu reusable component
+- [x] Right-click context menu on files/folders
+- [x] New File action (inline input + write_file)
+- [x] New Folder action (inline input + create_dir)
+- [x] Rename action (inline edit + rename_path)
+- [x] Delete action (confirm dialog + remove_path)
+- [x] New File/Folder toolbar buttons in Explorer header
+- [x] Icon component extended (file-plus, folder-plus, pencil)
+
 ---
 
 ## Remaining Work 📋
@@ -161,7 +171,6 @@
 - [ ] Additional built-in themes (Dracula, Nord, Monokai)
 
 #### Other
-- [ ] File create/delete/rename UI
 - [ ] Terminal plugin
 - [ ] Search plugin
 - [ ] LSP support
@@ -189,6 +198,7 @@ litcode/
 │   │   ├── Panel.tsx
 │   │   ├── Section.tsx
 │   │   ├── EmptyState.tsx
+│   │   ├── ContextMenu.tsx
 │   │   └── components.css
 │   │
 │   ├── core/
@@ -306,6 +316,12 @@ src-tauri/target/release/bundle/
 ## Changelog
 
 ### 2026-01-11
+- File operations UI complete
+  - ContextMenu component for right-click menus
+  - New File / New Folder via context menu and toolbar buttons
+  - Rename files/folders with inline editing
+  - Delete files/folders with confirmation dialog
+  - Icon component extended with file-plus, folder-plus, pencil icons
 - Dual license setup: Core (ELv2), Plugin SDK (MIT)
 - CLI permission fix: Install path changed to ~/.local/bin
 - CLI terminal detach fix: Using open -a for immediate terminal release

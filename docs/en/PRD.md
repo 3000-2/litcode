@@ -27,7 +27,7 @@
 - [x] Folder expand/collapse
 - [x] Direct path input
 - [x] Refresh button
-- [ ] File create/delete/rename (not implemented)
+- [x] File create/delete/rename (context menu + toolbar)
 
 ### 2. Editor ✅ Complete
 - [x] CodeMirror 6 based

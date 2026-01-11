@@ -136,6 +136,16 @@
 - [x] CLI 터미널 detach 수정 (open -a 사용)
 - [x] CLI 설치 경로 변경: /usr/local/bin → ~/.local/bin (권한 문제 해결)
 
+### Phase 16: 파일 작업 UI
+- [x] ContextMenu 재사용 컴포넌트
+- [x] 파일/폴더 우클릭 컨텍스트 메뉴
+- [x] 새 파일 생성 (인라인 입력 + write_file)
+- [x] 새 폴더 생성 (인라인 입력 + create_dir)
+- [x] 이름 변경 (인라인 편집 + rename_path)
+- [x] 삭제 (확인 다이얼로그 + remove_path)
+- [x] 탐색기 헤더에 새 파일/폴더 툴바 버튼
+- [x] Icon 컴포넌트 확장 (file-plus, folder-plus, pencil)
+
 ---
 
 ## 남은 작업 📋
@@ -161,7 +171,6 @@
 - [ ] 추가 내장 테마 (Dracula, Nord, Monokai)
 
 #### 기타
-- [ ] 파일 생성/삭제/이름변경 UI
 - [ ] 터미널 플러그인
 - [ ] 검색 플러그인
 - [ ] LSP 지원
@@ -189,6 +198,7 @@ litcode/
 │   │   ├── Panel.tsx
 │   │   ├── Section.tsx
 │   │   ├── EmptyState.tsx
+│   │   ├── ContextMenu.tsx
 │   │   └── components.css
 │   │
 │   ├── core/
@@ -306,6 +316,12 @@ src-tauri/target/release/bundle/
 ## 변경 이력
 
 ### 2026-01-11
+- 파일 작업 UI 완성
+  - ContextMenu 컴포넌트로 우클릭 메뉴 지원
+  - 컨텍스트 메뉴 및 툴바 버튼으로 새 파일/폴더 생성
+  - 인라인 편집으로 파일/폴더 이름 변경
+  - 확인 다이얼로그로 파일/폴더 삭제
+  - Icon 컴포넌트 확장 (file-plus, folder-plus, pencil 아이콘)
 - 듀얼 라이선스 설정: Core (ELv2), Plugin SDK (MIT)
 - CLI 권한 문제 해결: ~/.local/bin으로 설치 경로 변경
 - CLI 터미널 detach 수정: open -a 사용으로 터미널 즉시 해제

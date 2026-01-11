@@ -6,7 +6,9 @@ import {
   Settings,
   Folder,
   FolderOpen,
+  FolderPlus,
   File,
+  FilePlus,
   FileText,
   FileCode,
   FileType,
@@ -32,6 +34,7 @@ import {
   AlertCircle,
   Info,
   Loader2,
+  Pencil,
 } from 'lucide-react';
 
 const ICONS = {
@@ -41,7 +44,9 @@ const ICONS = {
   settings: Settings,
   folder: Folder,
   'folder-open': FolderOpen,
+  'folder-plus': FolderPlus,
   file: File,
+  'file-plus': FilePlus,
   'file-text': FileText,
   'file-code': FileCode,
   'file-type': FileType,
@@ -67,6 +72,7 @@ const ICONS = {
   alert: AlertCircle,
   info: Info,
   loader: Loader2,
+  pencil: Pencil,
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { IconButton } from '../../../components';
 import { eventBus, Events, type DirEntry } from '../../../core';
-import { FileTree } from './FileTree';
+import { FileTree, type FileTreeRef } from './FileTree';
 
 export function FileExplorerPanel() {
   const [rootPath, setRootPath] = useState<string>('');
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileTreeRef = useRef<FileTreeRef>(null);
 
   const loadDirectory = useCallback(async (path: string) => {
     if (!path) return;
@@ -17,7 +18,6 @@ export function FileExplorerPanel() {
     try {
       const result = await invoke<DirEntry[]>('read_dir', { path });
       setEntries(result);
-      // Emit after a tick to ensure other components have mounted
       setTimeout(() => eventBus.emit('root-path:change', { path }), 0);
     } catch (err) {
       setError(String(err));
@@ -60,6 +60,18 @@ export function FileExplorerPanel() {
     }
   };
 
+  const handleNewFile = () => {
+    if (rootPath) {
+      fileTreeRef.current?.triggerNewFile(rootPath);
+    }
+  };
+
+  const handleNewFolder = () => {
+    if (rootPath) {
+      fileTreeRef.current?.triggerNewFolder(rootPath);
+    }
+  };
+
   const folderName = rootPath.split('/').pop() || rootPath;
 
   return (
@@ -67,6 +79,20 @@ export function FileExplorerPanel() {
       <div className="flex justify-between items-center px-3 py-2 min-h-header border-b border-default">
         <span className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">EXPLORER</span>
         <div className="flex gap-1">
+          <IconButton
+            icon="file-plus"
+            size="sm"
+            onClick={handleNewFile}
+            title="New File"
+            disabled={!rootPath}
+          />
+          <IconButton
+            icon="folder-plus"
+            size="sm"
+            onClick={handleNewFolder}
+            title="New Folder"
+            disabled={!rootPath}
+          />
           <IconButton
             icon="refresh"
             size="sm"
@@ -89,8 +115,10 @@ export function FileExplorerPanel() {
         {error && <div className="py-6 px-3 text-center text-sm text-diff-removed">{error}</div>}
         {!loading && !error && (
           <FileTree
+            ref={fileTreeRef}
             entries={entries}
             onFileClick={handleFileClick}
+            rootPath={rootPath}
           />
         )}
       </div>

@@ -10,3 +10,4 @@ export { Checkbox } from './Checkbox';
 export { Panel } from './Panel';
 export { Section } from './Section';
 export { EmptyState } from './EmptyState';
+export { ContextMenu, type ContextMenuItem } from './ContextMenu';
