@@ -1,6 +1,6 @@
 # Litcode PRD (Product Requirements Document)
 
-**한국어** | [English](PRD.md)
+[English](../en/PRD.md) | **한국어**
 
 ## 개요
 

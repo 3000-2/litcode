@@ -1,6 +1,6 @@
 # Litcode Development Progress
 
-[한국어](PROGRESS.ko.md) | **English**
+**English** | [한국어](../ko/PROGRESS.md)
 
 ## Completed Work ✅
 

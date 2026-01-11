@@ -1,6 +1,6 @@
 # Litcode PRD (Product Requirements Document)
 
-[한국어](PRD.ko.md) | **English**
+**English** | [한국어](../ko/PRD.md)
 
 ## Overview
 

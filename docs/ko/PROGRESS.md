@@ -1,6 +1,6 @@
 # Litcode 개발 진행 상황
 
-**한국어** | [English](PROGRESS.md)
+[English](../en/PROGRESS.md) | **한국어**
 
 ## 완료된 작업 ✅
 
