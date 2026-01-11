@@ -87,16 +87,19 @@ function FileTreeItem({ entry, onFileClick, level }: FileTreeItemProps) {
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState<DirEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleClick = async () => {
     if (entry.isDirectory) {
       if (!expanded && children.length === 0) {
         setLoading(true);
+        setError(false);
         try {
           const result = await invoke<DirEntry[]>('read_dir', { path: entry.path });
           setChildren(result);
         } catch (err) {
           console.error('Failed to load directory:', err);
+          setError(true);
         } finally {
           setLoading(false);
         }
@@ -147,6 +150,7 @@ function FileTreeItem({ entry, onFileClick, level }: FileTreeItemProps) {
         </span>
         <span className="text-base flex-1 min-w-0 truncate">{entry.name}</span>
         {loading && <span className="text-2xs text-fg-secondary">...</span>}
+        {error && <span className="text-2xs text-diff-removed">!</span>}
       </div>
 
       {expanded && children.length > 0 && (

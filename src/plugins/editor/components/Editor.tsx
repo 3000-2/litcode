@@ -123,6 +123,7 @@ export function Editor() {
   const [currentPath, setCurrentPath] = useState<string | null>(null);
   const currentTabIdRef = useRef<string | null>(null);
   const originalContentRef = useRef<string>('');
+  const loadRequestIdRef = useRef<number>(0);
 
   const createUpdateListener = useCallback((tabId: string) => {
     return EditorView.updateListener.of((update) => {
@@ -191,12 +192,16 @@ export function Editor() {
   }, []);
 
   useEffect(() => {
-  const handleFileOpen = async (data: unknown) => {
+    const handleFileOpen = async (data: unknown) => {
       const { id, path, name } = data as { id: string; path: string; name: string };
       currentTabIdRef.current = id;
+      const requestId = ++loadRequestIdRef.current;
 
       try {
         const content = await invoke<string>('read_file', { path });
+        
+        if (requestId !== loadRequestIdRef.current) return;
+        
         originalContentRef.current = content;
         setCurrentPath(path);
 
@@ -213,9 +218,13 @@ export function Editor() {
     const handleTabChange = async (data: unknown) => {
       const { id, path } = data as { id: string; path: string };
       currentTabIdRef.current = id;
+      const requestId = ++loadRequestIdRef.current;
 
       try {
         const content = await invoke<string>('read_file', { path });
+        
+        if (requestId !== loadRequestIdRef.current) return;
+        
         originalContentRef.current = content;
         setCurrentPath(path);
 

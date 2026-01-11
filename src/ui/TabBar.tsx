@@ -26,17 +26,20 @@ export function TabBar() {
       const { id } = data as { id: string };
       setTabs((prev) => {
         const newTabs = prev.filter((t) => t.id !== id);
-        const isClosingActiveTab = activeTabId === id;
         
-        if (isClosingActiveTab) {
-          const newActiveTab = newTabs[newTabs.length - 1];
-          if (newActiveTab) {
-            setActiveTabId(newActiveTab.id);
-            eventBus.emit(Events.TAB_CHANGE, { id: newActiveTab.id, path: newActiveTab.path });
-          } else {
-            setActiveTabId(null);
+        setActiveTabId((currentActiveId) => {
+          if (currentActiveId === id) {
+            const newActiveTab = newTabs[newTabs.length - 1];
+            if (newActiveTab) {
+              setTimeout(() => {
+                eventBus.emit(Events.TAB_CHANGE, { id: newActiveTab.id, path: newActiveTab.path });
+              }, 0);
+              return newActiveTab.id;
+            }
+            return null;
           }
-        }
+          return currentActiveId;
+        });
         
         return newTabs;
       });
@@ -58,7 +61,7 @@ export function TabBar() {
       unsubClose();
       unsubDirty();
     };
-  }, [activeTabId, tabs]);
+  }, []);
 
   const handleTabClick = (id: string) => {
     setActiveTabId(id);

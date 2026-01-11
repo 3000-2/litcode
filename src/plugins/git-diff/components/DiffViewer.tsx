@@ -33,6 +33,7 @@ interface DiffViewerProps {
 }
 
 export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, onRevert }: DiffViewerProps) {
+  const canRevert = !isUntracked && !staged;
   const [diff, setDiff] = useState<GitDiff | null>(null);
   const [viewMode, setViewMode] = useState<'inline' | 'side-by-side'>('inline');
   const [loading, setLoading] = useState(false);
@@ -117,15 +118,17 @@ export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, o
             >
               Split
             </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              icon="trash"
-              onClick={handleRevertFile}
-              title="Discard all changes"
-            >
-              Discard All
-            </Button>
+            {canRevert && (
+              <Button
+                variant="danger"
+                size="sm"
+                icon="trash"
+                onClick={handleRevertFile}
+                title="Discard all changes"
+              >
+                Discard All
+              </Button>
+            )}
             <IconButton icon="x" size="lg" onClick={onClose} title="Close" />
           </div>
         </div>
@@ -138,14 +141,14 @@ export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, o
             viewMode === 'inline' ? (
               <InlineDiff
                 diff={diff}
-                onRevertHunk={handleRevertHunk}
-                onRevertLine={handleRevertLine}
+                onRevertHunk={canRevert ? handleRevertHunk : undefined}
+                onRevertLine={canRevert ? handleRevertLine : undefined}
               />
             ) : (
               <SideBySideDiff
                 diff={diff}
-                onRevertHunk={handleRevertHunk}
-                onRevertLine={handleRevertLine}
+                onRevertHunk={canRevert ? handleRevertHunk : undefined}
+                onRevertLine={canRevert ? handleRevertLine : undefined}
               />
             )
           )}
@@ -157,8 +160,8 @@ export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, o
 
 interface DiffProps {
   diff: GitDiff;
-  onRevertHunk: (index: number) => void;
-  onRevertLine: (lineNumber: number) => void;
+  onRevertHunk?: (index: number) => void;
+  onRevertLine?: (lineNumber: number) => void;
 }
 
 function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
@@ -170,16 +173,18 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
             <span className="font-mono-editor text-sm text-fg-secondary">
               @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              icon="undo"
-              onClick={() => onRevertHunk(hunkIndex)}
-              title="Revert this block"
-              className="hover:bg-diff-removed hover:text-diff-removed"
-            >
-              Revert Block
-            </Button>
+            {onRevertHunk && (
+              <Button
+                variant="ghost"
+                size="sm"
+                icon="undo"
+                onClick={() => onRevertHunk(hunkIndex)}
+                title="Revert this block"
+                className="hover:bg-diff-removed hover:text-diff-removed"
+              >
+                Revert Block
+              </Button>
+            )}
           </div>
           <div className="font-mono-editor text-base leading-relaxed">
             {hunk.lines.map((line, lineIndex) => {
@@ -209,7 +214,7 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
                     {line.type === 'add' ? '+' : line.type === 'delete' ? '-' : ' '}
                   </span>
                   <span className="flex-1 px-2 whitespace-pre-wrap break-all">{line.content}</span>
-                  {(line.type === 'add' || line.type === 'delete') && lineNum && (
+                  {onRevertLine && (line.type === 'add' || line.type === 'delete') && lineNum && (
                     <IconButton
                       icon="undo"
                       size="sm"
@@ -243,16 +248,18 @@ function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
               <span className="font-mono-editor text-sm text-fg-secondary">
                 @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon="undo"
-                onClick={() => onRevertHunk(hunkIndex)}
-                title="Revert this block"
-                className="hover:bg-diff-removed hover:text-diff-removed"
-              >
-                Revert Block
-              </Button>
+              {onRevertHunk && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon="undo"
+                  onClick={() => onRevertHunk(hunkIndex)}
+                  title="Revert this block"
+                  className="hover:bg-diff-removed hover:text-diff-removed"
+                >
+                  Revert Block
+                </Button>
+              )}
             </div>
             <div className="flex">
               <div className="flex-1 min-w-0 border-r border-default">
@@ -280,7 +287,7 @@ function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
                     <div key={i} className={cn('group flex pr-1', line.type === 'add' && 'bg-diff-added')}>
                       <span className="w-10 min-w-10 px-2 text-right text-fg-muted select-none">{line.newLineNumber || ''}</span>
                       <span className="flex-1 px-2 whitespace-pre-wrap break-all font-mono-editor text-base">{line.content}</span>
-                      {line.type === 'add' && lineNum && (
+                      {onRevertLine && line.type === 'add' && lineNum && (
                         <IconButton
                           icon="undo"
                           size="sm"

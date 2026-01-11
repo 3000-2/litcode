@@ -20,8 +20,8 @@ export function StatusBar() {
   const rightItems = items.filter((i) => i.position === 'right');
 
   return (
-    <div className="h-statusbar min-h-statusbar bg-tertiary flex items-center justify-between px-2 text-sm text-fg-secondary">
-      <div className="flex items-center gap-3">
+    <div className="h-statusbar min-h-statusbar bg-tertiary grid grid-cols-3 items-center px-2 text-sm text-fg-secondary">
+      <div className="flex items-center gap-3 justify-start">
         {leftItems.map((item) => (
           <div key={item.id} className="flex items-center gap-1 cursor-default">
             {item.content}
@@ -29,7 +29,7 @@ export function StatusBar() {
         ))}
       </div>
 
-      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+      <div className="flex items-center gap-3 justify-center">
         {centerItems.map((item) => (
           <div key={item.id} className="flex items-center gap-1 cursor-default">
             {item.content}
@@ -37,7 +37,7 @@ export function StatusBar() {
         ))}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 justify-end">
         {rightItems.map((item) => (
           <div key={item.id} className="flex items-center gap-1 cursor-default [&_button]:px-1.5 [&_button]:py-0.5 [&_button]:rounded-sm [&_button]:text-fg-secondary [&_button:hover]:bg-hover">
             {item.content}

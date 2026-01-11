@@ -235,34 +235,33 @@ pub fn git_revert_hunk(repo_path: &str, file_path: &str, hunk_index: usize) -> R
     }
 
     let full_path = std::path::Path::new(repo_path).join(file_path);
-    let original_content = std::fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
-    let lines: Vec<&str> = original_content.lines().collect();
+    let current_content = std::fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
+    let current_lines: Vec<&str> = current_content.lines().collect();
     
     let hunk = &diff.hunks[hunk_index];
     let mut result_lines: Vec<String> = Vec::new();
-    let mut current_line = 0u32;
     
-    for line in &lines {
-        current_line += 1;
-        
-        let in_hunk = current_line >= hunk.new_start && current_line < hunk.new_start + hunk.new_lines;
-        
-        if !in_hunk {
+    let hunk_start = (hunk.new_start as usize).saturating_sub(1);
+    let hunk_end = hunk_start + hunk.new_lines as usize;
+    
+    for (i, line) in current_lines.iter().enumerate() {
+        if i < hunk_start || i >= hunk_end {
             result_lines.push(line.to_string());
-        }
-    }
-
-    for diff_line in &hunk.lines {
-        if diff_line.line_type == "delete" || diff_line.line_type == "context" {
-            if let Some(old_num) = diff_line.old_line_number {
-                let insert_pos = (hunk.new_start as usize - 1).min(result_lines.len());
-                result_lines.insert(insert_pos + (old_num as usize - hunk.old_start as usize), diff_line.content.trim_end().to_string());
+        } else if i == hunk_start {
+            for diff_line in &hunk.lines {
+                if diff_line.line_type == "delete" || diff_line.line_type == "context" {
+                    result_lines.push(diff_line.content.trim_end().to_string());
+                }
             }
         }
     }
 
     let result = result_lines.join("\n");
-    std::fs::write(&full_path, result).map_err(|e| e.to_string())?;
+    if current_content.ends_with('\n') && !result.is_empty() {
+        std::fs::write(&full_path, format!("{}\n", result)).map_err(|e| e.to_string())?;
+    } else {
+        std::fs::write(&full_path, result).map_err(|e| e.to_string())?;
+    }
 
     Ok(())
 }
@@ -276,34 +275,62 @@ pub fn git_revert_lines(
 ) -> Result<(), String> {
     let diff = git_diff(repo_path, file_path, false)?;
     let full_path = std::path::Path::new(repo_path).join(file_path);
-    let original_content = std::fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
-    let mut lines: Vec<String> = original_content.lines().map(|s| s.to_string()).collect();
-
+    let current_content = std::fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
+    let current_lines: Vec<&str> = current_content.lines().collect();
+    
+    let mut lines_to_remove: std::collections::HashSet<usize> = std::collections::HashSet::new();
+    let mut lines_to_restore: Vec<(usize, String)> = Vec::new();
+    
     for hunk in &diff.hunks {
         for diff_line in &hunk.lines {
             if let Some(new_num) = diff_line.new_line_number {
-                if new_num >= start_line && new_num <= end_line {
-                    match diff_line.line_type.as_str() {
-                        "add" => {
-                            if (new_num as usize) <= lines.len() {
-                                lines.remove((new_num - 1) as usize);
-                            }
-                        }
-                        "delete" => {
-                            if let Some(old_num) = diff_line.old_line_number {
-                                let insert_pos = ((old_num - 1) as usize).min(lines.len());
-                                lines.insert(insert_pos, diff_line.content.trim_end().to_string());
-                            }
-                        }
-                        _ => {}
+                if new_num >= start_line && new_num <= end_line && diff_line.line_type == "add" {
+                    lines_to_remove.insert((new_num - 1) as usize);
+                }
+            }
+            if let (Some(_old_num), Some(new_num)) = (diff_line.old_line_number, diff_line.new_line_number) {
+                if new_num >= start_line && new_num <= end_line && diff_line.line_type == "delete" {
+                    lines_to_restore.push(((new_num - 1) as usize, diff_line.content.trim_end().to_string()));
+                }
+            }
+            if diff_line.line_type == "delete" && diff_line.new_line_number.is_none() {
+                if let Some(old_num) = diff_line.old_line_number {
+                    if old_num >= start_line && old_num <= end_line {
+                        let insert_at = (old_num - 1) as usize;
+                        lines_to_restore.push((insert_at, diff_line.content.trim_end().to_string()));
                     }
                 }
             }
         }
     }
+    
+    let mut result_lines: Vec<String> = Vec::new();
+    
+    lines_to_restore.sort_by_key(|(pos, _)| *pos);
+    
+    let mut restore_idx = 0;
+    for (i, line) in current_lines.iter().enumerate() {
+        while restore_idx < lines_to_restore.len() && lines_to_restore[restore_idx].0 == i {
+            result_lines.push(lines_to_restore[restore_idx].1.clone());
+            restore_idx += 1;
+        }
+        
+        if !lines_to_remove.contains(&i) {
+            result_lines.push(line.to_string());
+        }
+    }
+    
+    while restore_idx < lines_to_restore.len() {
+        result_lines.push(lines_to_restore[restore_idx].1.clone());
+        restore_idx += 1;
+    }
 
-    let result = lines.join("\n");
-    std::fs::write(&full_path, result).map_err(|e| e.to_string())?;
+    let result = result_lines.join("\n");
+    if current_content.ends_with('\n') && !result.is_empty() {
+        std::fs::write(&full_path, format!("{}\n", result)).map_err(|e| e.to_string())?;
+    } else {
+        std::fs::write(&full_path, result).map_err(|e| e.to_string())?;
+    }
 
     Ok(())
 }
@@ -356,11 +383,19 @@ pub fn git_stage_file(repo_path: &str, file_path: &str) -> Result<(), String> {
 #[tauri::command]
 pub fn git_unstage_file(repo_path: &str, file_path: &str) -> Result<(), String> {
     let repo = Repository::open(repo_path).map_err(|e| e.to_string())?;
-    let head = repo.head().map_err(|e| e.to_string())?;
-    let head_commit = head.peel_to_commit().map_err(|e| e.to_string())?;
     
-    repo.reset_default(Some(&head_commit.into_object()), &[std::path::Path::new(file_path)])
-        .map_err(|e| e.to_string())?;
+    match repo.head() {
+        Ok(head) => {
+            let head_commit = head.peel_to_commit().map_err(|e| e.to_string())?;
+            repo.reset_default(Some(&head_commit.into_object()), &[std::path::Path::new(file_path)])
+                .map_err(|e| e.to_string())?;
+        }
+        Err(_) => {
+            let mut index = repo.index().map_err(|e| e.to_string())?;
+            index.remove_path(std::path::Path::new(file_path)).map_err(|e| e.to_string())?;
+            index.write().map_err(|e| e.to_string())?;
+        }
+    }
     
     Ok(())
 }
