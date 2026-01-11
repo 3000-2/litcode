@@ -3,6 +3,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { IconButton, Icon } from '../../../components';
 import { eventBus, Events } from '../../../core';
 
+const DEBOUNCE_MS = 300;
+
 interface SearchMatch {
   path: string;
   line: number;
@@ -18,9 +20,7 @@ interface SearchResult {
   truncated: boolean;
 }
 
-interface GroupedResults {
-  [path: string]: SearchMatch[];
-}
+type GroupedResults = Record<string, SearchMatch[]>;
 
 export function SearchPanel() {
   const [query, setQuery] = useState('');
@@ -49,6 +49,20 @@ export function SearchPanel() {
     });
     return unsub;
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (query.trim()) {
+      performSearch(query);
+    }
+  }, [caseSensitive, useRegex]);
 
   const performSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim() || !rootPath) {
@@ -87,7 +101,7 @@ export function SearchPanel() {
 
     searchTimeoutRef.current = setTimeout(() => {
       performSearch(value);
-    }, 300);
+    }, DEBOUNCE_MS);
   }, [performSearch]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -129,15 +143,12 @@ export function SearchPanel() {
     });
   }, []);
 
-  const groupedResults: GroupedResults = {};
-  if (results) {
-    for (const match of results.matches) {
-      if (!groupedResults[match.path]) {
-        groupedResults[match.path] = [];
-      }
-      groupedResults[match.path].push(match);
-    }
-  }
+  const groupedResults: GroupedResults = results
+    ? results.matches.reduce<GroupedResults>((acc, match) => {
+        (acc[match.path] ??= []).push(match);
+        return acc;
+      }, {})
+    : {};
 
   const getRelativePath = (fullPath: string) => {
     if (rootPath && fullPath.startsWith(rootPath)) {
@@ -146,19 +157,29 @@ export function SearchPanel() {
     return fullPath;
   };
 
-  const highlightMatch = (content: string, matchStart: number, matchEnd: number) => {
-    const before = content.slice(0, matchStart);
-    const match = content.slice(matchStart, matchEnd);
-    const after = content.slice(matchEnd);
-    
+  const renderHighlightedContent = useCallback((match: SearchMatch) => {
+    const { content, matchStart, matchEnd } = match;
+    const trimmedContent = content.trim();
+    const leadingSpaces = content.length - content.trimStart().length;
+    const adjustedStart = matchStart - leadingSpaces;
+    const adjustedEnd = matchEnd - leadingSpaces;
+
+    if (adjustedStart < 0 || adjustedEnd > trimmedContent.length) {
+      return <span className="text-fg-secondary">{trimmedContent}</span>;
+    }
+
+    const before = trimmedContent.slice(0, adjustedStart);
+    const highlighted = trimmedContent.slice(adjustedStart, adjustedEnd);
+    const after = trimmedContent.slice(adjustedEnd);
+
     return (
       <>
         <span className="text-fg-secondary">{before}</span>
-        <span className="bg-yellow-500/30 text-yellow-300">{match}</span>
+        <span className="bg-yellow-500/30 text-yellow-300">{highlighted}</span>
         <span className="text-fg-secondary">{after}</span>
       </>
     );
-  };
+  }, []);
 
   return (
     <div className="flex flex-col h-full">
@@ -273,11 +294,7 @@ export function SearchPanel() {
                           {match.line}
                         </span>
                         <span className="text-xs font-mono truncate flex-1">
-                          {highlightMatch(
-                            match.content.trim(),
-                            match.matchStart - (match.content.length - match.content.trimStart().length),
-                            match.matchEnd - (match.content.length - match.content.trimStart().length)
-                          )}
+                          {renderHighlightedContent(match)}
                         </span>
                       </button>
                     ))}

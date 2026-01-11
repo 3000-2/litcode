@@ -225,8 +225,8 @@ pub fn search_content(
                 .case_insensitive(true)
                 .build()
         };
-        if test_regex.is_err() {
-            return Err("Invalid regex pattern".to_string());
+        if let Err(e) = test_regex {
+            return Err(format!("Invalid regex: {}", e));
         }
     }
 

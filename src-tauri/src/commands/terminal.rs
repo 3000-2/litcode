@@ -49,7 +49,7 @@ pub async fn terminal_spawn(
     rows: Option<u16>,
     cols: Option<u16>,
 ) -> Result<TerminalSpawnResult, String> {
-    let id = format!("term-{}", uuid_simple());
+    let id = generate_terminal_id();
     let rows = rows.unwrap_or(24);
     let cols = cols.unwrap_or(80);
 
@@ -200,10 +200,17 @@ pub async fn terminal_kill(app: AppHandle, id: String) -> Result<(), String> {
     Ok(())
 }
 
-fn uuid_simple() -> String {
+fn generate_terminal_id() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
-    let duration = SystemTime::now()
+
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+
+    let timestamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap_or_default();
-    format!("{:x}{:x}", duration.as_secs(), duration.subsec_nanos())
+        .unwrap_or_default()
+        .as_nanos() as u64;
+    let count = COUNTER.fetch_add(1, Ordering::Relaxed);
+
+    format!("term-{:x}-{:x}", timestamp, count)
 }

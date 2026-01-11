@@ -1,11 +1,35 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { listen, UnlistenFn } from '@tauri-apps/api/event';
+import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { IconButton } from '../../../components';
 import { eventBus } from '../../../core';
 import '@xterm/xterm/css/xterm.css';
+
+const TERMINAL_THEME = {
+  background: '#1e1e1e',
+  foreground: '#cccccc',
+  cursor: '#cccccc',
+  cursorAccent: '#1e1e1e',
+  selectionBackground: '#264f78',
+  black: '#1e1e1e',
+  red: '#f44747',
+  green: '#6a9955',
+  yellow: '#d7ba7d',
+  blue: '#569cd6',
+  magenta: '#c586c0',
+  cyan: '#4ec9b0',
+  white: '#d4d4d4',
+  brightBlack: '#808080',
+  brightRed: '#f44747',
+  brightGreen: '#6a9955',
+  brightYellow: '#d7ba7d',
+  brightBlue: '#569cd6',
+  brightMagenta: '#c586c0',
+  brightCyan: '#4ec9b0',
+  brightWhite: '#ffffff',
+} as const;
 
 interface TerminalInstance {
   id: string;
@@ -29,6 +53,8 @@ export function TerminalPanel() {
     return unsub;
   }, []);
 
+  const handleTerminalExitRef = useRef<(id: string) => void>(() => {});
+
   const spawnTerminal = useCallback(async () => {
     if (!containerRef.current) return;
 
@@ -43,29 +69,7 @@ export function TerminalPanel() {
         cursorBlink: true,
         fontSize: 13,
         fontFamily: 'JetBrains Mono, SF Mono, Menlo, monospace',
-        theme: {
-          background: '#1e1e1e',
-          foreground: '#cccccc',
-          cursor: '#cccccc',
-          cursorAccent: '#1e1e1e',
-          selectionBackground: '#264f78',
-          black: '#1e1e1e',
-          red: '#f44747',
-          green: '#6a9955',
-          yellow: '#d7ba7d',
-          blue: '#569cd6',
-          magenta: '#c586c0',
-          cyan: '#4ec9b0',
-          white: '#d4d4d4',
-          brightBlack: '#808080',
-          brightRed: '#f44747',
-          brightGreen: '#6a9955',
-          brightYellow: '#d7ba7d',
-          brightBlue: '#569cd6',
-          brightMagenta: '#c586c0',
-          brightCyan: '#4ec9b0',
-          brightWhite: '#ffffff',
-        },
+        theme: TERMINAL_THEME,
       });
 
       const fitAddon = new FitAddon();
@@ -77,7 +81,7 @@ export function TerminalPanel() {
       });
 
       const unlistenExit = await listen(`terminal:exit:${result.id}`, () => {
-        handleTerminalExit(result.id);
+        handleTerminalExitRef.current(result.id);
       });
 
       terminal.onData((data) => {
@@ -114,16 +118,20 @@ export function TerminalPanel() {
         instance.unlistenExit?.();
         instance.terminal.dispose();
       }
-      return prev.filter((t) => t.id !== id);
-    });
+      const remaining = prev.filter((t) => t.id !== id);
 
-    setActiveTerminalId((prev) => {
-      if (prev === id) {
-        return null;
-      }
-      return prev;
+      setActiveTerminalId((currentActive) => {
+        if (currentActive === id) {
+          return remaining.length > 0 ? remaining[remaining.length - 1].id : null;
+        }
+        return currentActive;
+      });
+
+      return remaining;
     });
   }, []);
+
+  handleTerminalExitRef.current = handleTerminalExit;
 
   const killTerminal = useCallback(async (id: string) => {
     try {
@@ -182,9 +190,12 @@ export function TerminalPanel() {
     return () => resizeObserver.disconnect();
   }, [activeTerminalId, terminals]);
 
+  const terminalsRef = useRef<TerminalInstance[]>([]);
+  terminalsRef.current = terminals;
+
   useEffect(() => {
     return () => {
-      terminals.forEach((instance) => {
+      terminalsRef.current.forEach((instance) => {
         instance.unlistenData?.();
         instance.unlistenExit?.();
         instance.terminal.dispose();
@@ -249,7 +260,7 @@ export function TerminalPanel() {
           <div
             ref={containerRef}
             className="h-full w-full p-1"
-            style={{ backgroundColor: '#1e1e1e' }}
+            style={{ backgroundColor: TERMINAL_THEME.background }}
           />
         )}
       </div>
