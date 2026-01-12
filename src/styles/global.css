@@ -101,19 +101,23 @@
 }
 
 @layer components {
-  .titlebar-drag-region {
+  [data-tauri-drag-region] {
     -webkit-app-region: drag;
     user-select: none;
     -webkit-user-select: none;
+    cursor: default;
   }
 
-  .titlebar-drag-region * {
+  [data-tauri-drag-region] * {
     pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
   
   .titlebar-no-drag {
     -webkit-app-region: no-drag;
     pointer-events: auto;
+    user-select: auto;
   }
 }
 
