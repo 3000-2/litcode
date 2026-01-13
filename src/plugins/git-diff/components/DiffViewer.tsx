@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { IconButton, Button } from '../../../components';
 import { cn } from '../../../lib/utils';
+import { type DiffViewMode } from '../../../core';
 
 interface GitDiffLine {
   type: string;
@@ -23,14 +24,12 @@ interface GitDiff {
   hunks: GitHunk[];
 }
 
-type ViewMode = 'inline' | 'split';
-
 interface DiffViewerProps {
   repoPath: string;
   filePath: string;
   staged: boolean;
   isUntracked: boolean;
-  defaultViewMode?: ViewMode;
+  defaultViewMode?: DiffViewMode;
   onClose: () => void;
   onRevert: () => void;
 }
@@ -38,9 +37,13 @@ interface DiffViewerProps {
 export function DiffViewer({ repoPath, filePath, staged, isUntracked, defaultViewMode = 'inline', onClose, onRevert }: DiffViewerProps) {
   const canRevert = !isUntracked && !staged;
   const [diff, setDiff] = useState<GitDiff | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
+  const [viewMode, setViewMode] = useState<DiffViewMode>(defaultViewMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setViewMode(defaultViewMode);
+  }, [defaultViewMode]);
 
   useEffect(() => {
     const loadDiff = async () => {
