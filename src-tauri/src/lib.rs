@@ -1,6 +1,7 @@
 mod commands;
 
 use commands::{
+    config_read, config_write,
     create_dir, file_exists, git_diff, git_diff_untracked, git_revert_file, git_revert_hunk,
     git_revert_lines, git_stage_file, git_status, git_unstage_file, read_dir, read_file,
     remove_path, rename_path, write_file,
@@ -109,6 +110,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            config_read,
+            config_write,
             read_file,
             write_file,
             read_dir,

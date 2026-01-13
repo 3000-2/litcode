@@ -1,15 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Button, Select, SelectOption, Toggle, Slider, Section } from '../../../components';
-import { eventBus, Events, type Settings, type ThemeConfig, type DiffViewMode } from '../../../core';
-
-import darkTheme from '../../../styles/themes/dark.json';
-import lightTheme from '../../../styles/themes/light.json';
-
-const BUILT_IN_THEMES: Record<string, ThemeConfig> = {
-  dark: darkTheme as ThemeConfig,
-  light: lightTheme as ThemeConfig,
-};
+import { useSettings, BUILT_IN_THEMES, type DiffViewMode } from '../../../core';
 
 const BUILT_IN_FONTS = [
   'JetBrains Mono',
@@ -19,141 +11,42 @@ const BUILT_IN_FONTS = [
   'Monaco',
 ];
 
-const DEFAULT_SETTINGS: Settings = {
-  theme: 'dark',
-  editorFont: {
-    family: 'JetBrains Mono',
-    size: 13,
-    lineHeight: 1.5,
-    ligatures: true,
-  },
-  uiFontSize: 13,
-  customFonts: [],
-  diffViewMode: 'inline',
-};
-
-type LegacySettings = {
-  theme: string;
-  font?: {
-    family: string;
-    size: number;
-    lineHeight: number;
-    ligatures: boolean;
-  };
-  editorFont?: Settings['editorFont'];
-  uiFontSize?: number;
-  customFonts: string[];
-  diffViewMode?: DiffViewMode;
-};
-
-function migrateSettings(parsed: LegacySettings): Settings {
-  const base: Settings = {
-    theme: parsed.theme || DEFAULT_SETTINGS.theme,
-    editorFont: parsed.editorFont || parsed.font || DEFAULT_SETTINGS.editorFont,
-    uiFontSize: parsed.uiFontSize || DEFAULT_SETTINGS.uiFontSize,
-    customFonts: parsed.customFonts || DEFAULT_SETTINGS.customFonts,
-    diffViewMode: parsed.diffViewMode || DEFAULT_SETTINGS.diffViewMode,
-  };
-  return base;
-}
-
 export function SettingsPanel() {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const { settings, updateSettings, updateEditorFont } = useSettings();
   const [cliInstalled, setCliInstalled] = useState(false);
   const [cliMessage, setCliMessage] = useState<string | null>(null);
   const [cliLoading, setCliLoading] = useState(false);
 
-  const applyTheme = useCallback((themeName: string) => {
-    const theme = BUILT_IN_THEMES[themeName];
-    if (!theme) return;
-
-    const root = document.documentElement;
-    root.style.setProperty('--bg-primary', theme.colors.background);
-    root.style.setProperty('--bg-secondary', theme.colors.sidebar);
-    root.style.setProperty('--bg-tertiary', theme.type === 'dark' ? '#2d2d30' : '#e8e8e8');
-    root.style.setProperty('--bg-hover', theme.type === 'dark' ? '#3c3c3c' : '#d4d4d4');
-    root.style.setProperty('--fg-primary', theme.colors.foreground);
-    root.style.setProperty('--fg-secondary', theme.type === 'dark' ? '#969696' : '#666666');
-    root.style.setProperty('--border-color', theme.colors.border);
-    root.style.setProperty('--accent-color', theme.colors.accent);
-
-    eventBus.emit(Events.THEME_CHANGE, { theme: themeName });
-  }, []);
-
-  const applyEditorFont = useCallback((editorFont: Settings['editorFont']) => {
-    const root = document.documentElement;
-    root.style.setProperty('--editor-font-family', `'${editorFont.family}', monospace`);
-    root.style.setProperty('--editor-font-size', `${editorFont.size}px`);
-    root.style.setProperty('--editor-line-height', String(editorFont.lineHeight));
-
-    eventBus.emit(Events.FONT_CHANGE, { font: editorFont });
-  }, []);
-
-  const applyUIFontSize = useCallback((size: number) => {
-    const root = document.documentElement;
-    root.style.setProperty('--ui-font-size', `${size}px`);
-  }, []);
-
   useEffect(() => {
-    const saved = localStorage.getItem('litcode:settings');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as LegacySettings;
-        const migrated = migrateSettings(parsed);
-        setSettings(migrated);
-        applyTheme(migrated.theme);
-        applyEditorFont(migrated.editorFont);
-        applyUIFontSize(migrated.uiFontSize);
-      } catch {
-        setSettings(DEFAULT_SETTINGS);
-        applyTheme(DEFAULT_SETTINGS.theme);
-        applyEditorFont(DEFAULT_SETTINGS.editorFont);
-        applyUIFontSize(DEFAULT_SETTINGS.uiFontSize);
-      }
-    } else {
-      applyTheme(DEFAULT_SETTINGS.theme);
-      applyEditorFont(DEFAULT_SETTINGS.editorFont);
-      applyUIFontSize(DEFAULT_SETTINGS.uiFontSize);
-    }
-
     invoke<boolean>('is_cli_installed').then(setCliInstalled);
-  }, [applyTheme, applyEditorFont, applyUIFontSize]);
-
-  const saveSettings = useCallback((newSettings: Settings) => {
-    setSettings(newSettings);
-    localStorage.setItem('litcode:settings', JSON.stringify(newSettings));
-    applyTheme(newSettings.theme);
-    applyEditorFont(newSettings.editorFont);
-    applyUIFontSize(newSettings.uiFontSize);
-  }, [applyTheme, applyEditorFont, applyUIFontSize]);
+  }, []);
 
   const handleThemeChange = (theme: string) => {
-    saveSettings({ ...settings, theme });
+    updateSettings({ theme });
   };
 
   const handleFontFamilyChange = (family: string) => {
-    saveSettings({ ...settings, editorFont: { ...settings.editorFont, family } });
+    updateEditorFont({ family });
   };
 
   const handleEditorFontSizeChange = (size: number) => {
-    saveSettings({ ...settings, editorFont: { ...settings.editorFont, size } });
+    updateEditorFont({ size });
   };
 
-  const handleUIFontSizeChange = (size: number) => {
-    saveSettings({ ...settings, uiFontSize: size });
+  const handleUIFontSizeChange = (uiFontSize: number) => {
+    updateSettings({ uiFontSize });
   };
 
   const handleLineHeightChange = (lineHeight: number) => {
-    saveSettings({ ...settings, editorFont: { ...settings.editorFont, lineHeight } });
+    updateEditorFont({ lineHeight });
   };
 
   const handleLigaturesChange = (ligatures: boolean) => {
-    saveSettings({ ...settings, editorFont: { ...settings.editorFont, ligatures } });
+    updateEditorFont({ ligatures });
   };
 
-  const handleDiffViewModeChange = (mode: DiffViewMode) => {
-    saveSettings({ ...settings, diffViewMode: mode });
-    eventBus.emit('settings:diffViewMode', { mode });
+  const handleDiffViewModeChange = (diffViewMode: DiffViewMode) => {
+    updateSettings({ diffViewMode });
   };
 
   const handleInstallCli = async () => {

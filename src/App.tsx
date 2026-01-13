@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Layout } from './ui';
-import { pluginLoader } from './core';
+import { pluginLoader, SettingsProvider, useSettings } from './core';
 import { fileExplorerPlugin } from './plugins/file-explorer';
 import { editorPlugin } from './plugins/editor';
 import { gitDiffPlugin } from './plugins/git-diff';
@@ -11,7 +11,8 @@ import { searchPlugin } from './plugins/search';
 
 import './styles/global.css';
 
-function App() {
+function AppContent() {
+  const { isLoading } = useSettings();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ function App() {
     };
   }, []);
 
-  if (!ready) {
+  if (!ready || isLoading) {
     return (
       <div style={{ 
         height: '100vh', 
@@ -51,6 +52,14 @@ function App() {
   }
 
   return <Layout />;
+}
+
+function App() {
+  return (
+    <SettingsProvider>
+      <AppContent />
+    </SettingsProvider>
+  );
 }
 
 export default App;

@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { GitBranch } from 'lucide-react';
 import { IconButton } from '../../../components';
 import { cn } from '../../../lib/utils';
-import { eventBus, Events, type DiffViewMode } from '../../../core';
+import { eventBus, Events, useSettings } from '../../../core';
 import { DiffViewer } from './DiffViewer';
 
 interface GitFileStatus {
@@ -26,24 +26,13 @@ interface SelectedFile {
   isUntracked: boolean;
 }
 
-function getDiffViewModeFromStorage(): DiffViewMode {
-  try {
-    const saved = localStorage.getItem('litcode:settings');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.diffViewMode || 'inline';
-    }
-  } catch {}
-  return 'inline';
-}
-
 export function GitDiffPanel() {
+  const { settings } = useSettings();
   const [repoPath, setRepoPath] = useState<string>('');
   const [status, setStatus] = useState<GitStatus | null>(null);
   const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [diffViewMode, setDiffViewMode] = useState<DiffViewMode>(getDiffViewModeFromStorage);
 
   const loadStatus = useCallback(async (path: string) => {
     if (!path) return;
@@ -83,15 +72,10 @@ export function GitDiffPanel() {
     const unsubFileSave = eventBus.on(Events.FILE_SAVE, () => {
       if (repoPath) loadStatus(repoPath);
     });
-    const unsubDiffViewMode = eventBus.on('settings:diffViewMode', (data) => {
-      const { mode } = data as { mode: DiffViewMode };
-      setDiffViewMode(mode);
-    });
     return () => {
       unsubRefresh();
       unsubRootChange();
       unsubFileSave();
-      unsubDiffViewMode();
     };
   }, [loadStatus, repoPath]);
 
@@ -280,7 +264,7 @@ export function GitDiffPanel() {
           filePath={selectedFile.path}
           staged={selectedFile.staged}
           isUntracked={selectedFile.isUntracked}
-          defaultViewMode={diffViewMode}
+          defaultViewMode={settings.diffViewMode}
           onClose={() => setSelectedFile(null)}
           onRevert={() => {
             loadStatus(repoPath);
