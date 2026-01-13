@@ -46,6 +46,16 @@ export function TerminalPanel() {
   const [rootPath, setRootPath] = useState<string>('');
 
   useEffect(() => {
+    invoke<string>('get_initial_path')
+      .then((initialPath) => {
+        if (initialPath) {
+          setRootPath(initialPath);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const unsub = eventBus.on('root-path:change', (data) => {
       const { path } = data as { path: string };
       setRootPath(path);

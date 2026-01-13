@@ -35,6 +35,16 @@ export function SearchPanel() {
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    invoke<string>('get_initial_path')
+      .then((initialPath) => {
+        if (initialPath) {
+          setRootPath(initialPath);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const unsub = eventBus.on('root-path:change', (data) => {
       const { path } = data as { path: string };
       setRootPath(path);
