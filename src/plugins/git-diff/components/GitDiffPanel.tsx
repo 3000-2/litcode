@@ -49,6 +49,17 @@ export function GitDiffPanel() {
   }, []);
 
   useEffect(() => {
+    invoke<string>('get_initial_path')
+      .then((initialPath) => {
+        if (initialPath) {
+          setRepoPath(initialPath);
+          loadStatus(initialPath);
+        }
+      })
+      .catch(() => {});
+  }, [loadStatus]);
+
+  useEffect(() => {
     const unsubRefresh = eventBus.on('git:refresh', () => {
       if (repoPath) loadStatus(repoPath);
     });
