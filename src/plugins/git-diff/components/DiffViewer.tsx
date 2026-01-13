@@ -23,19 +23,22 @@ interface GitDiff {
   hunks: GitHunk[];
 }
 
+type ViewMode = 'inline' | 'split';
+
 interface DiffViewerProps {
   repoPath: string;
   filePath: string;
   staged: boolean;
   isUntracked: boolean;
+  defaultViewMode?: ViewMode;
   onClose: () => void;
   onRevert: () => void;
 }
 
-export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, onRevert }: DiffViewerProps) {
+export function DiffViewer({ repoPath, filePath, staged, isUntracked, defaultViewMode = 'inline', onClose, onRevert }: DiffViewerProps) {
   const canRevert = !isUntracked && !staged;
   const [diff, setDiff] = useState<GitDiff | null>(null);
-  const [viewMode, setViewMode] = useState<'inline' | 'side-by-side'>('inline');
+  const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,9 +115,9 @@ export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, o
               Inline
             </Button>
             <Button
-              variant={viewMode === 'side-by-side' ? 'primary' : 'ghost'}
+              variant={viewMode === 'split' ? 'primary' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('side-by-side')}
+              onClick={() => setViewMode('split')}
             >
               Split
             </Button>
@@ -145,7 +148,7 @@ export function DiffViewer({ repoPath, filePath, staged, isUntracked, onClose, o
                 onRevertLine={canRevert ? handleRevertLine : undefined}
               />
             ) : (
-              <SideBySideDiff
+              <SplitDiff
                 diff={diff}
                 onRevertHunk={canRevert ? handleRevertHunk : undefined}
                 onRevertLine={canRevert ? handleRevertLine : undefined}
@@ -234,7 +237,7 @@ function InlineDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
   );
 }
 
-function SideBySideDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
+function SplitDiff({ diff, onRevertHunk, onRevertLine }: DiffProps) {
   return (
     <div>
       {diff.hunks.map((hunk, hunkIndex) => {

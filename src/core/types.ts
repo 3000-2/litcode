@@ -95,9 +95,12 @@ export interface EditorFontConfig {
   ligatures: boolean;
 }
 
+export type DiffViewMode = 'inline' | 'split';
+
 export interface Settings {
   theme: string;
   editorFont: EditorFontConfig;
   uiFontSize: number;
   customFonts: string[];
+  diffViewMode: DiffViewMode;
 }

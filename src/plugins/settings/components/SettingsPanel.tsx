@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Button, Select, SelectOption, Toggle, Slider, Section } from '../../../components';
-import { eventBus, Events, type Settings, type ThemeConfig } from '../../../core';
+import { eventBus, Events, type Settings, type ThemeConfig, type DiffViewMode } from '../../../core';
 
 import darkTheme from '../../../styles/themes/dark.json';
 import lightTheme from '../../../styles/themes/light.json';
@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS: Settings = {
   },
   uiFontSize: 13,
   customFonts: [],
+  diffViewMode: 'inline',
 };
 
 type LegacySettings = {
@@ -42,21 +43,18 @@ type LegacySettings = {
   editorFont?: Settings['editorFont'];
   uiFontSize?: number;
   customFonts: string[];
+  diffViewMode?: DiffViewMode;
 };
 
 function migrateSettings(parsed: LegacySettings): Settings {
-  if (parsed.editorFont) {
-    return parsed as Settings;
-  }
-  if (parsed.font) {
-    return {
-      theme: parsed.theme,
-      editorFont: parsed.font,
-      uiFontSize: 13,
-      customFonts: parsed.customFonts,
-    };
-  }
-  return DEFAULT_SETTINGS;
+  const base: Settings = {
+    theme: parsed.theme || DEFAULT_SETTINGS.theme,
+    editorFont: parsed.editorFont || parsed.font || DEFAULT_SETTINGS.editorFont,
+    uiFontSize: parsed.uiFontSize || DEFAULT_SETTINGS.uiFontSize,
+    customFonts: parsed.customFonts || DEFAULT_SETTINGS.customFonts,
+    diffViewMode: parsed.diffViewMode || DEFAULT_SETTINGS.diffViewMode,
+  };
+  return base;
 }
 
 export function SettingsPanel() {
@@ -151,6 +149,11 @@ export function SettingsPanel() {
 
   const handleLigaturesChange = (ligatures: boolean) => {
     saveSettings({ ...settings, editorFont: { ...settings.editorFont, ligatures } });
+  };
+
+  const handleDiffViewModeChange = (mode: DiffViewMode) => {
+    saveSettings({ ...settings, diffViewMode: mode });
+    eventBus.emit('settings:diffViewMode', { mode });
   };
 
   const handleInstallCli = async () => {
@@ -251,6 +254,16 @@ export function SettingsPanel() {
           >
             Enable Ligatures
           </Toggle>
+        </Section>
+
+        <Section title="Diff View Mode">
+          <Select
+            value={settings.diffViewMode}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleDiffViewModeChange(e.target.value as DiffViewMode)}
+          >
+            <SelectOption value="inline">Inline (VS Code style)</SelectOption>
+            <SelectOption value="split">Split (JetBrains style)</SelectOption>
+          </Select>
         </Section>
 
         <Section
