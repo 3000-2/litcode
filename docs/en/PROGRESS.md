@@ -165,6 +165,22 @@
 - [x] Debounced search (300ms)
 - [x] Keyboard shortcut (Cmd+Shift+F)
 
+### Phase 19: JetBrains-Style Diff View
+- [x] Split diff view using @codemirror/merge (MergeView)
+- [x] Tab-based diff viewing (integrated with TabBar, not modal)
+- [x] Full file content on both sides with highlighted changes
+- [x] Editable right panel (modified content)
+- [x] Per-chunk revert buttons (chevron arrows)
+- [x] Synchronized scrolling between panels
+- [x] Directory tree structure in diff panel (like Explorer)
+- [x] Keyboard navigation (F7/Shift+F7 for next/prev change)
+- [x] Undo/Redo support for diff edits (Cmd+Z / Cmd+Shift+Z)
+- [x] Toolbar with Save/Discard actions
+- [x] Collapse unchanged regions setting
+- [x] Rust commands: git_show_file, git_show_staged_file
+- [x] Shared editor utilities (getLanguageExtension, baseEditorTheme)
+- [x] Type-safe event payloads for tab events
+
 ---
 
 ## Remaining Work 📋
@@ -246,8 +262,13 @@ litcode/
 │   │   │   └── components/
 │   │   │       ├── GitDiffPanel.tsx
 │   │   │       ├── GitDiffPanel.css
+│   │   │       ├── GitDiffTree.tsx
 │   │   │       ├── DiffViewer.tsx
-│   │   │       └── DiffViewer.css
+│   │   │       ├── DiffViewer.css
+│   │   │       └── SplitDiffView/
+│   │   │           ├── index.ts
+│   │   │           ├── SplitDiffView.tsx
+│   │   │           └── DiffToolbar.tsx
 │   │   │
 │   │   ├── debugger/
 │   │   │   ├── index.ts
@@ -331,6 +352,21 @@ src-tauri/target/release/bundle/
 ---
 
 ## Changelog
+
+### 2026-01-16
+- JetBrains-style split diff view complete
+  - Tab-based diff viewing using @codemirror/merge MergeView
+  - Full file content on both sides with highlighted changes
+  - Directory tree structure in diff panel (like Explorer)
+  - Per-chunk revert buttons with undo support (Cmd+Z)
+  - Keyboard navigation (F7/Shift+F7)
+  - Toolbar with Save/Discard actions
+  - Rust commands: git_show_file, git_show_staged_file
+- Bug fix: File now opens immediately on first click in diff panel
+- Code refactoring
+  - Extracted shared editor utilities (getLanguageExtension, baseEditorTheme)
+  - Added type-safe event payloads for tab events
+  - Removed unused TabInfo type
 
 ### 2026-01-11
 - Search plugin complete

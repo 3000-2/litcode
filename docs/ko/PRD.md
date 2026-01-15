@@ -49,6 +49,11 @@
 - [x] Hunk(블록) 단위 되돌리기
 - [x] **라인 단위 되돌리기**
 - [x] Stage/Unstage 기능 (백엔드 + UI)
+- [x] **JetBrains 스타일 분할 diff 뷰** (탭 기반, 전체 파일 내용)
+- [x] diff 패널에 디렉토리 트리 구조
+- [x] 청크별 되돌리기 + 실행취소 지원 (Cmd+Z)
+- [x] 키보드 네비게이션 (F7/Shift+F7)
+- [x] 변경 없는 영역 축소 설정
 
 ### 4. 디버거 🔄 UI만 완료
 - [x] 디버거 패널 UI
@@ -135,6 +140,8 @@
 | git_revert_lines | 라인 되돌리기 | ✅ |
 | git_stage_file | 파일 스테이징 | ✅ |
 | git_unstage_file | 스테이징 취소 | ✅ |
+| git_show_file | 특정 리비전 파일 표시 | ✅ |
+| git_show_staged_file | 스테이징된 파일 내용 표시 | ✅ |
 
 ## 일정
 

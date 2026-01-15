@@ -165,6 +165,22 @@
 - [x] 디바운스 검색 (300ms)
 - [x] 키보드 단축키 (Cmd+Shift+F)
 
+### Phase 19: JetBrains 스타일 Diff 뷰
+- [x] @codemirror/merge를 사용한 분할 diff 뷰 (MergeView)
+- [x] 탭 기반 diff 보기 (모달이 아닌 TabBar와 통합)
+- [x] 양쪽에 전체 파일 내용과 변경사항 하이라이트
+- [x] 오른쪽 패널 편집 가능 (수정된 내용)
+- [x] 청크별 되돌리기 버튼 (화살표)
+- [x] 동기화된 스크롤
+- [x] diff 패널에 디렉토리 트리 구조 (탐색기와 동일)
+- [x] 키보드 네비게이션 (F7/Shift+F7로 다음/이전 변경)
+- [x] diff 편집에 대한 실행취소/다시실행 지원 (Cmd+Z / Cmd+Shift+Z)
+- [x] 저장/취소 액션이 있는 툴바
+- [x] 변경 없는 영역 축소 설정
+- [x] Rust 명령어: git_show_file, git_show_staged_file
+- [x] 공유 에디터 유틸리티 (getLanguageExtension, baseEditorTheme)
+- [x] 탭 이벤트를 위한 타입 안전 이벤트 페이로드
+
 ---
 
 ## 남은 작업 📋
@@ -246,8 +262,13 @@ litcode/
 │   │   │   └── components/
 │   │   │       ├── GitDiffPanel.tsx
 │   │   │       ├── GitDiffPanel.css
+│   │   │       ├── GitDiffTree.tsx
 │   │   │       ├── DiffViewer.tsx
-│   │   │       └── DiffViewer.css
+│   │   │       ├── DiffViewer.css
+│   │   │       └── SplitDiffView/
+│   │   │           ├── index.ts
+│   │   │           ├── SplitDiffView.tsx
+│   │   │           └── DiffToolbar.tsx
 │   │   │
 │   │   ├── debugger/
 │   │   │   ├── index.ts
@@ -331,6 +352,21 @@ src-tauri/target/release/bundle/
 ---
 
 ## 변경 이력
+
+### 2026-01-16
+- JetBrains 스타일 분할 diff 뷰 완성
+  - @codemirror/merge MergeView를 사용한 탭 기반 diff 보기
+  - 양쪽에 전체 파일 내용과 변경사항 하이라이트
+  - diff 패널에 디렉토리 트리 구조 (탐색기와 동일)
+  - 청크별 되돌리기 버튼 + 실행취소 지원 (Cmd+Z)
+  - 키보드 네비게이션 (F7/Shift+F7)
+  - 저장/취소 액션이 있는 툴바
+  - Rust 명령어: git_show_file, git_show_staged_file
+- 버그 수정: diff 패널에서 파일 클릭 시 즉시 열리도록 수정
+- 코드 리팩터링
+  - 공유 에디터 유틸리티 추출 (getLanguageExtension, baseEditorTheme)
+  - 탭 이벤트를 위한 타입 안전 이벤트 페이로드 추가
+  - 사용하지 않는 TabInfo 타입 제거
 
 ### 2026-01-11
 - 검색 플러그인 완성

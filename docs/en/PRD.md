@@ -49,6 +49,11 @@
 - [x] Revert by hunk
 - [x] **Revert by line**
 - [x] Stage/Unstage (backend + UI)
+- [x] **JetBrains-style split diff view** (tab-based, full file content)
+- [x] Directory tree structure in diff panel
+- [x] Per-chunk revert with undo support (Cmd+Z)
+- [x] Keyboard navigation (F7/Shift+F7)
+- [x] Collapse unchanged regions setting
 
 ### 4. Debugger 🔄 UI Only
 - [x] Debugger panel UI
@@ -135,6 +140,8 @@
 | git_revert_lines | Revert lines | ✅ |
 | git_stage_file | Stage file | ✅ |
 | git_unstage_file | Unstage file | ✅ |
+| git_show_file | Show file at revision | ✅ |
+| git_show_staged_file | Show staged file content | ✅ |
 
 ## Timeline
 
