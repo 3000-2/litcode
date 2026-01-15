@@ -1,8 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { MergeView } from '@codemirror/merge';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { defaultKeymap, history, historyKeymap, undo, redo, undoDepth, redoDepth } from '@codemirror/commands';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { invoke } from '@tauri-apps/api/core';
 import { DiffToolbar } from './DiffToolbar';
@@ -29,6 +29,7 @@ export function SplitDiffView({ tabInfo, onClose, onContentChange }: SplitDiffVi
   const containerRef = useRef<HTMLDivElement>(null);
   const mergeViewRef = useRef<MergeView | null>(null);
   const { settings } = useSettings();
+  const [historyState, setHistoryState] = useState({ hasUndo: false, hasRedo: false });
   
   const canRevert = !tabInfo.isUntracked && !tabInfo.staged;
 
@@ -69,6 +70,10 @@ export function SplitDiffView({ tabInfo, onClose, onContentChange }: SplitDiffVi
             if (update.docChanged) {
               onContentChange(update.state.doc.toString());
             }
+            setHistoryState({ 
+              hasUndo: undoDepth(update.state) > 0, 
+              hasRedo: redoDepth(update.state) > 0 
+            });
           }),
         ],
       },
@@ -148,6 +153,18 @@ export function SplitDiffView({ tabInfo, onClose, onContentChange }: SplitDiffVi
     }
   }, [tabInfo, onClose]);
 
+  const handleUndo = useCallback(() => {
+    if (mergeViewRef.current) {
+      undo(mergeViewRef.current.b);
+    }
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    if (mergeViewRef.current) {
+      redo(mergeViewRef.current.b);
+    }
+  }, []);
+
   const getOriginalLabel = () => {
     if (tabInfo.isUntracked) return 'Empty (New File)';
     if (tabInfo.staged) return 'Original (HEAD)';
@@ -171,7 +188,11 @@ export function SplitDiffView({ tabInfo, onClose, onContentChange }: SplitDiffVi
         onNextChunk={handleNextChunk}
         onAcceptAll={handleAcceptAll}
         onRejectAll={handleRejectAll}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
         canRevert={canRevert}
+        hasUndo={historyState.hasUndo}
+        hasRedo={historyState.hasRedo}
       />
       
       <div className="flex border-b border-default">

@@ -24,10 +24,16 @@ export function TabBar() {
         const exists = prev.find((t) => t.type === 'file' && (t as FileTabInfo).path === path);
         if (exists) {
           setActiveTabId(exists.id);
+          setTimeout(() => {
+            eventBus.emit(Events.TAB_CHANGE, { id: exists.id, path, type: 'file' });
+          }, 0);
           return prev;
         }
         const newTab: FileTabInfo = { id, type: 'file', path, name, isDirty: false };
         setActiveTabId(id);
+        setTimeout(() => {
+          eventBus.emit(Events.TAB_CHANGE, { id, path, type: 'file' });
+        }, 0);
         return [...prev, newTab];
       });
     };
@@ -40,12 +46,16 @@ export function TabBar() {
         );
         if (exists) {
           setActiveTabId(exists.id);
-          const updated = prev.map((t) =>
-            t.id === exists.id ? { ...diffData, id: exists.id } : t
-          );
-          return updated;
+          const updatedTab = { ...diffData, id: exists.id };
+          setTimeout(() => {
+            eventBus.emit(Events.TAB_CHANGE, { id: exists.id, type: 'diff', tabInfo: updatedTab });
+          }, 0);
+          return prev.map((t) => (t.id === exists.id ? updatedTab : t));
         }
         setActiveTabId(diffData.id);
+        setTimeout(() => {
+          eventBus.emit(Events.TAB_CHANGE, { id: diffData.id, type: 'diff', tabInfo: diffData });
+        }, 0);
         return [...prev, diffData];
       });
     };

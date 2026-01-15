@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { GitBranch } from 'lucide-react';
 import { IconButton } from '../../../components';
-import { cn } from '../../../lib/utils';
 import { eventBus, Events } from '../../../core';
+import { GitDiffTree } from './GitDiffTree';
 import type { DiffTabInfo } from '../../../core/types';
 
 interface GitFileStatus {
@@ -149,100 +149,8 @@ export function GitDiffPanel() {
     }
   };
 
-  const getStatusIcon = (status: string): string => {
-    switch (status) {
-      case 'added':
-        return 'A';
-      case 'modified':
-        return 'M';
-      case 'deleted':
-        return 'D';
-      case 'renamed':
-        return 'R';
-      case 'untracked':
-        return 'U';
-      default:
-        return '?';
-    }
-  };
-
-  const getStatusColorClass = (status: string): string => {
-    switch (status) {
-      case 'added':
-        return 'text-diff-added';
-      case 'deleted':
-        return 'text-diff-removed';
-      case 'modified':
-        return 'text-diff-modified';
-      case 'untracked':
-        return 'text-diff-added';
-      default:
-        return 'text-fg-secondary';
-    }
-  };
-
   const stagedFiles = status?.files.filter(f => f.staged) || [];
   const unstagedFiles = status?.files.filter(f => f.workingTree) || [];
-
-  const renderFileItem = (file: GitFileStatus, isStaged: boolean) => {
-    const isUntracked = file.status === 'untracked';
-    
-    return (
-      <div
-        key={`${file.path}-${isStaged ? 'staged' : 'unstaged'}`}
-        className={cn(
-          'group flex items-center gap-2 py-1 px-3 cursor-pointer transition-colors duration-100 hover:bg-hover'
-        )}
-        onClick={() => handleFileClick(file, isStaged)}
-      >
-        <span className={cn('font-mono-editor text-xs font-semibold w-4 text-center', getStatusColorClass(file.status))}>
-          {getStatusIcon(file.status)}
-        </span>
-        <span className="flex-1 text-sm truncate">
-          {file.path.split('/').pop()}
-        </span>
-        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-          {isStaged ? (
-            <IconButton
-              icon="minus"
-              size="sm"
-              variant="ghost"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleUnstageFile(file.path);
-              }}
-              title="Unstage"
-            />
-          ) : (
-            <>
-              <IconButton
-                icon="plus"
-                size="sm"
-                variant="ghost"
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  handleStageFile(file.path);
-                }}
-                title="Stage"
-              />
-              {!isUntracked && (
-                <IconButton
-                  icon="undo"
-                  size="sm"
-                  variant="ghost"
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    handleRevertFile(file.path);
-                  }}
-                  title="Discard changes"
-                />
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="flex flex-col h-full">
@@ -278,7 +186,14 @@ export function GitDiffPanel() {
                     <div className="px-3 py-1.5 text-xs font-semibold text-fg-secondary uppercase tracking-wide">
                       Staged Changes ({stagedFiles.length})
                     </div>
-                    {stagedFiles.map((file) => renderFileItem(file, true))}
+                    <GitDiffTree
+                      files={stagedFiles}
+                      isStaged={true}
+                      onFileClick={handleFileClick}
+                      onStageFile={handleStageFile}
+                      onUnstageFile={handleUnstageFile}
+                      onRevertFile={handleRevertFile}
+                    />
                   </div>
                 )}
                 
@@ -287,7 +202,14 @@ export function GitDiffPanel() {
                     <div className="px-3 py-1.5 text-xs font-semibold text-fg-secondary uppercase tracking-wide">
                       Changes ({unstagedFiles.length})
                     </div>
-                    {unstagedFiles.map((file) => renderFileItem(file, false))}
+                    <GitDiffTree
+                      files={unstagedFiles}
+                      isStaged={false}
+                      onFileClick={handleFileClick}
+                      onStageFile={handleStageFile}
+                      onUnstageFile={handleUnstageFile}
+                      onRevertFile={handleRevertFile}
+                    />
                   </div>
                 )}
               </div>
