@@ -15,14 +15,6 @@ export interface DirEntry {
   children?: DirEntry[];
 }
 
-export interface TabInfo {
-  id: string;
-  path: string;
-  name: string;
-  isDirty: boolean;
-  content?: string;
-}
-
 export interface SidebarConfig {
   id: string;
   icon: React.ReactNode;
@@ -136,3 +128,35 @@ export interface FileTabInfo {
 }
 
 export type UnifiedTabInfo = FileTabInfo | DiffTabInfo;
+
+// Event payload types for type-safe event handling
+export interface FileTabOpenPayload {
+  id: string;
+  path: string;
+  name: string;
+}
+
+export interface TabClosePayload {
+  id: string;
+}
+
+export interface TabDirtyPayload {
+  id: string;
+  isDirty: boolean;
+}
+
+export interface DiffTabUpdatePayload {
+  id: string;
+  modifiedContent: string;
+}
+
+export interface TabChangePayload {
+  id: string;
+  type: TabType;
+  path?: string;
+  tabInfo?: DiffTabInfo;
+}
+
+export interface RootPathChangePayload {
+  path: string;
+}

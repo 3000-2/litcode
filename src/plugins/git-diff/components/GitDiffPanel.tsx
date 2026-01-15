@@ -145,6 +145,7 @@ export function GitDiffPanel() {
       eventBus.emit(Events.DIFF_TAB_OPEN, diffTabInfo);
     } catch (err) {
       console.error('Failed to open diff view:', err);
+      setError(`Failed to load diff: ${String(err)}`);
     }
   };
 

@@ -2,7 +2,16 @@ import { useState, useEffect } from 'react';
 import { Icon, IconButton } from '../components';
 import { cn } from '../lib/utils';
 import { eventBus, Events } from '../core';
-import type { UnifiedTabInfo, FileTabInfo, DiffTabInfo } from '../core/types';
+import type { 
+  UnifiedTabInfo, 
+  FileTabInfo, 
+  DiffTabInfo,
+  FileTabOpenPayload,
+  TabClosePayload,
+  TabDirtyPayload,
+  DiffTabUpdatePayload,
+  TabChangePayload,
+} from '../core/types';
 
 export function TabBar() {
   const [tabs, setTabs] = useState<UnifiedTabInfo[]>([]);
@@ -10,7 +19,7 @@ export function TabBar() {
 
   useEffect(() => {
     const handleFileTabOpen = (data: unknown) => {
-      const { id, path, name } = data as { id: string; path: string; name: string };
+      const { id, path, name } = data as FileTabOpenPayload;
       setTabs((prev) => {
         const exists = prev.find((t) => t.type === 'file' && (t as FileTabInfo).path === path);
         if (exists) {
@@ -42,7 +51,7 @@ export function TabBar() {
     };
 
     const handleTabClose = (data: unknown) => {
-      const { id } = data as { id: string };
+      const { id } = data as TabClosePayload;
       setTabs((prev) => {
         const newTabs = prev.filter((t) => t.id !== id);
 
@@ -65,7 +74,7 @@ export function TabBar() {
     };
 
     const handleTabDirty = (data: unknown) => {
-      const { id, isDirty } = data as { id: string; isDirty: boolean };
+      const { id, isDirty } = data as TabDirtyPayload;
       setTabs((prev) =>
         prev.map((t) => {
           if (t.id === id && t.type === 'file') {
@@ -77,7 +86,7 @@ export function TabBar() {
     };
 
     const handleDiffTabUpdate = (data: unknown) => {
-      const { id, modifiedContent } = data as { id: string; modifiedContent: string };
+      const { id, modifiedContent } = data as DiffTabUpdatePayload;
       setTabs((prev) =>
         prev.map((t) => {
           if (t.id === id && t.type === 'diff') {
@@ -187,7 +196,7 @@ export function useActiveTab() {
 
   useEffect(() => {
     const handleTabChange = (data: unknown) => {
-      const tabData = data as { id: string; type: string; path?: string; tabInfo?: DiffTabInfo };
+      const tabData = data as TabChangePayload;
       if (tabData.type === 'diff' && tabData.tabInfo) {
         setActiveTab(tabData.tabInfo);
       } else if (tabData.type === 'file' && tabData.path) {
