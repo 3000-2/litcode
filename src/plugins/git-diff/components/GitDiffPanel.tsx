@@ -3,8 +3,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { GitBranch } from 'lucide-react';
 import { IconButton } from '../../../components';
 import { cn } from '../../../lib/utils';
-import { eventBus, Events, useSettings } from '../../../core';
-import { DiffViewer } from './DiffViewer';
+import { eventBus, Events } from '../../../core';
+import type { DiffTabInfo } from '../../../core/types';
 
 interface GitFileStatus {
   path: string;
@@ -20,17 +20,9 @@ interface GitStatus {
   behind: number;
 }
 
-interface SelectedFile {
-  path: string;
-  staged: boolean;
-  isUntracked: boolean;
-}
-
 export function GitDiffPanel() {
-  const { settings } = useSettings();
   const [repoPath, setRepoPath] = useState<string>('');
   const [status, setStatus] = useState<GitStatus | null>(null);
-  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,11 +93,58 @@ export function GitDiffPanel() {
     try {
       await invoke('git_revert_file', { repoPath, filePath });
       loadStatus(repoPath);
-      if (selectedFile?.path === filePath) {
-        setSelectedFile(null);
-      }
     } catch (err) {
       console.error('Failed to revert file:', err);
+    }
+  };
+
+  const handleFileClick = async (file: GitFileStatus, isStaged: boolean) => {
+    const isUntracked = file.status === 'untracked';
+    const fileName = file.path.split('/').pop() || file.path;
+    
+    try {
+      let originalContent = '';
+      let modifiedContent = '';
+
+      if (isUntracked) {
+        originalContent = '';
+        const fullPath = `${repoPath}/${file.path}`;
+        modifiedContent = await invoke<string>('read_file', { path: fullPath });
+      } else if (isStaged) {
+        originalContent = await invoke<string>('git_show_file', { 
+          repoPath, 
+          filePath: file.path, 
+          revision: 'HEAD' 
+        }).catch(() => '');
+        modifiedContent = await invoke<string>('git_show_staged_file', { 
+          repoPath, 
+          filePath: file.path 
+        });
+      } else {
+        originalContent = await invoke<string>('git_show_file', { 
+          repoPath, 
+          filePath: file.path, 
+          revision: 'HEAD' 
+        }).catch(() => '');
+        const fullPath = `${repoPath}/${file.path}`;
+        modifiedContent = await invoke<string>('read_file', { path: fullPath });
+      }
+
+      const diffTabInfo: DiffTabInfo = {
+        id: `diff-${file.path}-${isStaged ? 'staged' : 'unstaged'}`,
+        type: 'diff',
+        filePath: file.path,
+        fileName,
+        repoPath,
+        originalContent,
+        modifiedContent,
+        staged: isStaged,
+        isUntracked,
+      };
+
+      eventBus.emit(Events.DIFF_TAB_OPEN, diffTabInfo);
+    } catch (err) {
+      console.error('Failed to open diff view:', err);
     }
   };
 
@@ -145,17 +184,15 @@ export function GitDiffPanel() {
   const unstagedFiles = status?.files.filter(f => f.workingTree) || [];
 
   const renderFileItem = (file: GitFileStatus, isStaged: boolean) => {
-    const isSelected = selectedFile?.path === file.path && selectedFile?.staged === isStaged;
     const isUntracked = file.status === 'untracked';
     
     return (
       <div
         key={`${file.path}-${isStaged ? 'staged' : 'unstaged'}`}
         className={cn(
-          'group flex items-center gap-2 py-1 px-3 cursor-pointer transition-colors duration-100 hover:bg-hover',
-          isSelected && 'bg-active'
+          'group flex items-center gap-2 py-1 px-3 cursor-pointer transition-colors duration-100 hover:bg-hover'
         )}
-        onClick={() => setSelectedFile({ path: file.path, staged: isStaged, isUntracked })}
+        onClick={() => handleFileClick(file, isStaged)}
       >
         <span className={cn('font-mono-editor text-xs font-semibold w-4 text-center', getStatusColorClass(file.status))}>
           {getStatusIcon(file.status)}
@@ -257,21 +294,6 @@ export function GitDiffPanel() {
           </>
         )}
       </div>
-
-      {selectedFile && (
-        <DiffViewer
-          repoPath={repoPath}
-          filePath={selectedFile.path}
-          staged={selectedFile.staged}
-          isUntracked={selectedFile.isUntracked}
-          defaultViewMode={settings.diffViewMode}
-          onClose={() => setSelectedFile(null)}
-          onRevert={() => {
-            loadStatus(repoPath);
-            setSelectedFile(null);
-          }}
-        />
-      )}
     </div>
   );
 }

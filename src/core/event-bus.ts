@@ -99,4 +99,11 @@ export const Events = {
   // Plugin events
   PLUGIN_ACTIVATE: 'plugin:activate',
   PLUGIN_DEACTIVATE: 'plugin:deactivate',
+
+  // Diff view events
+  DIFF_TAB_OPEN: 'diff:tab-open',
+  DIFF_TAB_CLOSE: 'diff:tab-close',
+  DIFF_TAB_UPDATE: 'diff:tab-update',
+  DIFF_NAVIGATE_NEXT: 'diff:navigate-next',
+  DIFF_NAVIGATE_PREV: 'diff:navigate-prev',
 } as const;

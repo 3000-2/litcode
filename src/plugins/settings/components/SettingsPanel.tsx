@@ -49,6 +49,18 @@ export function SettingsPanel() {
     updateSettings({ diffViewMode });
   };
 
+  const handleDiffCollapseEnabledChange = (enabled: boolean) => {
+    updateSettings({ 
+      diffCollapse: { ...settings.diffCollapse, enabled } 
+    });
+  };
+
+  const handleDiffCollapseMarginChange = (margin: number) => {
+    updateSettings({ 
+      diffCollapse: { ...settings.diffCollapse, margin } 
+    });
+  };
+
   const handleInstallCli = async () => {
     setCliLoading(true);
     setCliMessage(null);
@@ -158,6 +170,27 @@ export function SettingsPanel() {
             <SelectOption value="split">Split (JetBrains style)</SelectOption>
           </Select>
         </Section>
+
+        <Section>
+          <Toggle
+            checked={settings.diffCollapse.enabled}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDiffCollapseEnabledChange(e.target.checked)}
+          >
+            Collapse Unchanged Lines in Diff
+          </Toggle>
+        </Section>
+
+        {settings.diffCollapse.enabled && (
+          <Section title="Context Lines Around Changes">
+            <Slider
+              min={1}
+              max={10}
+              value={settings.diffCollapse.margin}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDiffCollapseMarginChange(Number(e.target.value))}
+              valueSuffix=" lines"
+            />
+          </Section>
+        )}
 
         <Section
           title="Shell Command"

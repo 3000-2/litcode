@@ -97,10 +97,42 @@ export interface EditorFontConfig {
 
 export type DiffViewMode = 'inline' | 'split';
 
+export interface DiffCollapseSettings {
+  enabled: boolean;
+  margin: number;
+  minSize: number;
+}
+
 export interface Settings {
   theme: string;
   editorFont: EditorFontConfig;
   uiFontSize: number;
   customFonts: string[];
   diffViewMode: DiffViewMode;
+  diffCollapse: DiffCollapseSettings;
 }
+
+export type TabType = 'file' | 'diff';
+
+export interface DiffTabInfo {
+  id: string;
+  type: 'diff';
+  filePath: string;
+  fileName: string;
+  repoPath: string;
+  originalContent: string;
+  modifiedContent: string;
+  staged: boolean;
+  isUntracked: boolean;
+}
+
+export interface FileTabInfo {
+  id: string;
+  type: 'file';
+  path: string;
+  name: string;
+  isDirty: boolean;
+  content?: string;
+}
+
+export type UnifiedTabInfo = FileTabInfo | DiffTabInfo;

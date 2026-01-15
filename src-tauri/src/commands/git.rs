@@ -399,3 +399,34 @@ pub fn git_unstage_file(repo_path: &str, file_path: &str) -> Result<(), String> 
     
     Ok(())
 }
+
+#[tauri::command]
+pub fn git_show_file(repo_path: &str, file_path: &str, revision: &str) -> Result<String, String> {
+    let repo = Repository::open(repo_path).map_err(|e| e.to_string())?;
+    
+    let obj = repo.revparse_single(revision).map_err(|e| e.to_string())?;
+    let commit = obj.peel_to_commit().map_err(|e| e.to_string())?;
+    let tree = commit.tree().map_err(|e| e.to_string())?;
+    
+    let entry = tree.get_path(std::path::Path::new(file_path))
+        .map_err(|_| format!("File '{}' not found in {}", file_path, revision))?;
+    
+    let blob = repo.find_blob(entry.id()).map_err(|e| e.to_string())?;
+    
+    String::from_utf8(blob.content().to_vec())
+        .map_err(|_| "File contains non-UTF8 content".to_string())
+}
+
+#[tauri::command]
+pub fn git_show_staged_file(repo_path: &str, file_path: &str) -> Result<String, String> {
+    let repo = Repository::open(repo_path).map_err(|e| e.to_string())?;
+    let index = repo.index().map_err(|e| e.to_string())?;
+    
+    let entry = index.get_path(std::path::Path::new(file_path), 0)
+        .ok_or_else(|| format!("File '{}' not found in staging area", file_path))?;
+    
+    let blob = repo.find_blob(entry.id).map_err(|e| e.to_string())?;
+    
+    String::from_utf8(blob.content().to_vec())
+        .map_err(|_| "File contains non-UTF8 content".to_string())
+}

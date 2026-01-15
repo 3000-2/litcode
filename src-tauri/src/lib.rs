@@ -3,8 +3,8 @@ mod commands;
 use commands::{
     config_read, config_write,
     create_dir, file_exists, git_diff, git_diff_untracked, git_revert_file, git_revert_hunk,
-    git_revert_lines, git_stage_file, git_status, git_unstage_file, read_dir, read_file,
-    remove_path, rename_path, write_file,
+    git_revert_lines, git_stage_file, git_status, git_unstage_file, git_show_file, git_show_staged_file,
+    read_dir, read_file, remove_path, rename_path, write_file,
     terminal_spawn, terminal_write, terminal_resize, terminal_kill, init_terminal_state,
     search_content, search_files,
 };
@@ -127,6 +127,8 @@ pub fn run() {
             git_revert_lines,
             git_stage_file,
             git_unstage_file,
+            git_show_file,
+            git_show_staged_file,
             get_initial_path,
             install_cli,
             uninstall_cli,

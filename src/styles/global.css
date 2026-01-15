@@ -124,3 +124,106 @@
 @layer utilities {
   .font-mono-editor { font-family: var(--editor-font-family); }
 }
+
+/* Split Diff View Styles */
+.split-diff-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.split-diff-container .cm-mergeView {
+  height: 100%;
+  width: 100%;
+}
+
+.split-diff-container .cm-mergeViewEditors {
+  height: 100%;
+}
+
+.split-diff-container .cm-mergeViewEditor {
+  height: 100%;
+  overflow: auto;
+}
+
+.split-diff-container .cm-editor {
+  height: 100%;
+}
+
+/* Revert button in gutter */
+.diff-revert-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 2px 4px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--fg-secondary);
+  transition: all 0.15s ease;
+}
+
+.diff-revert-btn:hover {
+  background: var(--diff-removed-bg);
+  border-color: var(--diff-removed-fg);
+  color: var(--diff-removed-fg);
+}
+
+/* Merge view chunk styling */
+.cm-mergeView .cm-changedLine {
+  background: var(--diff-modified-bg);
+}
+
+.cm-mergeView .cm-deletedChunk .cm-changedLine {
+  background: var(--diff-removed-bg);
+}
+
+.cm-mergeView .cm-insertedChunk .cm-changedLine {
+  background: var(--diff-added-bg);
+}
+
+/* Gutter markers */
+.cm-mergeView .cm-changeGutter {
+  width: 4px;
+  padding: 0;
+}
+
+.cm-mergeView .cm-deletedLineGutter {
+  background: var(--diff-removed-fg);
+}
+
+.cm-mergeView .cm-insertedLineGutter {
+  background: var(--diff-added-fg);
+}
+
+/* Collapsed unchanged sections */
+.cm-mergeView .cm-collapsedLines {
+  background: var(--bg-tertiary);
+  color: var(--fg-muted);
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cm-mergeView .cm-collapsedLines:hover {
+  background: var(--bg-hover);
+  color: var(--fg-secondary);
+}
+
+/* Merge view gutter connection lines */
+.cm-mergeView .cm-mergeViewGutter {
+  background: var(--bg-secondary);
+  width: 16px;
+  min-width: 16px;
+  position: relative;
+}
+
+.cm-mergeView .cm-mergeViewGutter canvas {
+  opacity: 0.6;
+}

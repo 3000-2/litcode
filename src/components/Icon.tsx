@@ -2,6 +2,7 @@ import {
   LucideIcon,
   Files,
   GitBranch,
+  GitCompare,
   Bug,
   Settings,
   Folder,
@@ -29,6 +30,8 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
+  ChevronsLeft,
+  ChevronsRight,
   Search,
   Check,
   AlertCircle,
@@ -37,6 +40,8 @@ import {
   Pencil,
   Terminal,
   SquareTerminal,
+  ArrowLeftToLine,
+  ArrowRightToLine,
 } from 'lucide-react';
 
 const ICONS = {
@@ -77,6 +82,11 @@ const ICONS = {
   pencil: Pencil,
   terminal: Terminal,
   'square-terminal': SquareTerminal,
+  'git-compare': GitCompare,
+  'chevrons-left': ChevronsLeft,
+  'chevrons-right': ChevronsRight,
+  'arrow-left-to-line': ArrowLeftToLine,
+  'arrow-right-to-line': ArrowRightToLine,
 } as const;
 
 export type IconName = keyof typeof ICONS;

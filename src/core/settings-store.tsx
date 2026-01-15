@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import type { Settings, EditorFontConfig, ThemeConfig, DiffViewMode } from './types';
+import type { Settings, EditorFontConfig, ThemeConfig, DiffViewMode, DiffCollapseSettings } from './types';
 import { eventBus, Events } from './event-bus';
 
 import darkTheme from '../styles/themes/dark.json';
@@ -22,6 +22,11 @@ const DEFAULT_SETTINGS: Settings = {
   uiFontSize: 13,
   customFonts: [],
   diffViewMode: 'inline',
+  diffCollapse: {
+    enabled: true,
+    margin: 3,
+    minSize: 4,
+  },
 };
 
 type LegacySettings = {
@@ -31,6 +36,7 @@ type LegacySettings = {
   uiFontSize?: number;
   customFonts?: string[];
   diffViewMode?: DiffViewMode;
+  diffCollapse?: DiffCollapseSettings;
 };
 
 function migrateSettings(parsed: LegacySettings): Settings {
@@ -40,6 +46,7 @@ function migrateSettings(parsed: LegacySettings): Settings {
     uiFontSize: parsed.uiFontSize ?? DEFAULT_SETTINGS.uiFontSize,
     customFonts: parsed.customFonts || DEFAULT_SETTINGS.customFonts,
     diffViewMode: parsed.diffViewMode || DEFAULT_SETTINGS.diffViewMode,
+    diffCollapse: parsed.diffCollapse || DEFAULT_SETTINGS.diffCollapse,
   };
 }
 
